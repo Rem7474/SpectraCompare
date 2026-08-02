@@ -20,7 +20,9 @@ class MeasurementDetailScreen extends StatelessWidget {
             onSelected: (choice) {
               if (choice == 'csv') {
                 Share.share(
-                  ExportService.frequencyResponseToCsv(measurement.frequencyResponse),
+                  ExportService.frequencyResponseToCsv(
+                    measurement.frequencyResponse,
+                  ),
                   subject: '${measurement.displayName}.csv',
                 );
               } else if (choice == 'json') {
@@ -58,7 +60,12 @@ class MeasurementDetailScreen extends StatelessWidget {
               const SizedBox(height: 16),
               _InfoRow('Enceinte', measurement.speakerModel ?? '—'),
               _InfoRow('Position', measurement.position ?? '—'),
-              _InfoRow('Distance', measurement.distanceM != null ? '${measurement.distanceM}m' : '—'),
+              _InfoRow(
+                'Distance',
+                measurement.distanceM != null
+                    ? '${measurement.distanceM}m'
+                    : '—',
+              ),
               _InfoRow('Niveau', '${measurement.outputLevelDbfs.round()}dBFS'),
               _InfoRow('Signal', measurement.signalConfig.type.name),
               _InfoRow(
@@ -73,7 +80,10 @@ class MeasurementDetailScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 8),
                   child: Wrap(
                     spacing: 6,
-                    children: [for (final tag in measurement.tags) Chip(label: Text(tag))],
+                    children: [
+                      for (final tag in measurement.tags)
+                        Chip(label: Text(tag)),
+                    ],
                   ),
                 ),
               if (measurement.notes != null && measurement.notes!.isNotEmpty)
@@ -101,7 +111,10 @@ class _InfoRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
         children: [
-          SizedBox(width: 120, child: Text(label, style: const TextStyle(color: Colors.grey))),
+          SizedBox(
+            width: 120,
+            child: Text(label, style: const TextStyle(color: Colors.grey)),
+          ),
           Expanded(child: Text(value)),
         ],
       ),

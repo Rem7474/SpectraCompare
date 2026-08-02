@@ -8,17 +8,28 @@ void main() {
     sqfliteFfiInit();
   });
 
-  testWidgets('SpectraCompareApp boots to the Measurer tab and can navigate to all others', (tester) async {
-    final appDb = AppDatabase(factory: databaseFactoryFfiNoIsolate, path: inMemoryDatabasePath);
-    await tester.pumpWidget(SpectraCompareApp(appDatabase: appDb));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Mesurer'), findsWidgets);
-
-    for (final label in ['Analyseur', 'Bibliothèque', 'Comparaison', 'Calibration']) {
-      await tester.tap(find.text(label));
+  testWidgets(
+    'SpectraCompareApp boots to the Measurer tab and can navigate to all others',
+    (tester) async {
+      final appDb = AppDatabase(
+        factory: databaseFactoryFfiNoIsolate,
+        path: inMemoryDatabasePath,
+      );
+      await tester.pumpWidget(SpectraCompareApp(appDatabase: appDb));
       await tester.pumpAndSettle();
-      expect(find.text(label), findsWidgets);
-    }
-  });
+
+      expect(find.text('Mesurer'), findsWidgets);
+
+      for (final label in [
+        'Analyseur',
+        'Bibliothèque',
+        'Comparaison',
+        'Calibration',
+      ]) {
+        await tester.tap(find.text(label));
+        await tester.pumpAndSettle();
+        expect(find.text(label), findsWidgets);
+      }
+    },
+  );
 }

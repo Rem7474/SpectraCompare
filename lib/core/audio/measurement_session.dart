@@ -74,7 +74,8 @@ class MeasurementSession {
     this.tailSilence = const Duration(milliseconds: 800),
   });
 
-  int _samplesFor(Duration d) => (d.inMicroseconds * sampleRate / Duration.microsecondsPerSecond).round();
+  int _samplesFor(Duration d) =>
+      (d.inMicroseconds * sampleRate / Duration.microsecondsPerSecond).round();
 
   /// Builds the combined playback WAV bytes for a measurement (exposed
   /// separately so tests / the analyzer can reuse the exact same chirp+main
@@ -91,7 +92,13 @@ class MeasurementSession {
     final gap = Float64List(_samplesFor(gapSilence));
     final tail = Float64List(_samplesFor(tailSilence));
 
-    final combined = Float64List(preroll.length + chirp.length + gap.length + mainSignal.length + tail.length);
+    final combined = Float64List(
+      preroll.length +
+          chirp.length +
+          gap.length +
+          mainSignal.length +
+          tail.length,
+    );
     int offset = 0;
     combined.setAll(offset, preroll);
     offset += preroll.length;
@@ -122,8 +129,12 @@ class MeasurementSession {
     final recording = await recorder.stop();
 
     final correlation = CrossCorrelation.findOffset(chirp, recording.samples);
-    final mainStart = correlation.offsetSamples + chirp.length + _samplesFor(gapSilence);
-    final mainEnd = math.min(recording.samples.length, mainStart + mainSignal.length);
+    final mainStart =
+        correlation.offsetSamples + chirp.length + _samplesFor(gapSilence);
+    final mainEnd = math.min(
+      recording.samples.length,
+      mainStart + mainSignal.length,
+    );
     final segment = mainEnd > mainStart
         ? Float64List.sublistView(recording.samples, mainStart, mainEnd)
         : Float64List(0);

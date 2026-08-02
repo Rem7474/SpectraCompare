@@ -58,7 +58,10 @@ class ExponentialSweepDeconvolver {
   /// with [inverseFilter] to produce the impulse response. Full linear
   /// convolution length (`recorded.length + inverseFilter.length - 1`),
   /// computed via zero-padded circular convolution (no wraparound aliasing).
-  Float64List impulseResponse(List<double> recorded, List<double> inverseFilter) {
+  Float64List impulseResponse(
+    List<double> recorded,
+    List<double> inverseFilter,
+  ) {
     final linearLength = recorded.length + inverseFilter.length - 1;
     final n = FftUtils.nextPowerOfTwo(linearLength);
     final fft = FFT(n);
@@ -102,8 +105,15 @@ class ExponentialSweepDeconvolver {
     final end = math.min(ir.length, peakIndex + postSamples);
     final segment = Float64List.sublistView(ir, start, end);
 
-    final tapered = _tukeyWindow(segment.length, taperFraction).applyWindowReal(segment);
-    final spectrum = FftUtils.magnitudeSpectrum(tapered, sampleRate, hannWindow: false);
+    final tapered = _tukeyWindow(
+      segment.length,
+      taperFraction,
+    ).applyWindowReal(segment);
+    final spectrum = FftUtils.magnitudeSpectrum(
+      tapered,
+      sampleRate,
+      hannWindow: false,
+    );
 
     final points = <FrequencyResponsePoint>[];
     for (int i = 0; i < spectrum.freqsHz.length; i++) {

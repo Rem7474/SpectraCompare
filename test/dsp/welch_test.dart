@@ -12,7 +12,11 @@ void main() {
         sampleRate * 2,
         (i) => math.sin(2 * math.pi * 1000 * i / sampleRate),
       );
-      final spectrum = Welch.averagedSpectrum(samples, sampleRate, segmentLength: 4096);
+      final spectrum = Welch.averagedSpectrum(
+        samples,
+        sampleRate,
+        segmentLength: 4096,
+      );
       var peak = spectrum.points.first;
       for (final p in spectrum.points) {
         if (p.magnitudeDb > peak.magnitudeDb) peak = p;
@@ -21,8 +25,15 @@ void main() {
     });
 
     test('handles input shorter than the segment length without throwing', () {
-      final samples = List<double>.generate(500, (i) => math.sin(2 * math.pi * 440 * i / sampleRate));
-      final spectrum = Welch.averagedSpectrum(samples, sampleRate, segmentLength: 4096);
+      final samples = List<double>.generate(
+        500,
+        (i) => math.sin(2 * math.pi * 440 * i / sampleRate),
+      );
+      final spectrum = Welch.averagedSpectrum(
+        samples,
+        sampleRate,
+        segmentLength: 4096,
+      );
       expect(spectrum.points, isNotEmpty);
     });
 

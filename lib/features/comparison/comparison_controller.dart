@@ -36,7 +36,8 @@ class ComparisonController extends ChangeNotifier {
     notifyListeners();
   }
 
-  List<Measurement> get selectedMeasurements => available.where((m) => selectedIds.contains(m.id)).toList();
+  List<Measurement> get selectedMeasurements =>
+      available.where((m) => selectedIds.contains(m.id)).toList();
 
   Measurement? get reference {
     final id = referenceId;

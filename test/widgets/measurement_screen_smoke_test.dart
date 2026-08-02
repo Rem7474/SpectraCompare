@@ -22,7 +22,8 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (_) => GeneratorController()),
         ChangeNotifierProvider(
-          create: (_) => MeasurementController(measurementDao: MeasurementDao(appDb)),
+          create: (_) =>
+              MeasurementController(measurementDao: MeasurementDao(appDb)),
         ),
         ChangeNotifierProvider(
           create: (_) => CalibrationController(dao: CalibrationCurveDao(appDb)),
@@ -32,31 +33,39 @@ void main() {
     );
   }
 
-  testWidgets('renders presets and the start button without touching audio plugins', (tester) async {
-    await tester.pumpWidget(wrap());
-    await tester.pumpAndSettle();
+  testWidgets(
+    'renders presets and the start button without touching audio plugins',
+    (tester) async {
+      await tester.pumpWidget(wrap());
+      await tester.pumpAndSettle();
 
-    expect(find.text('Mesurer'), findsOneWidget);
-    for (final preset in SignalPresets.all) {
-      expect(find.text(preset.name), findsOneWidget);
-    }
-    expect(find.text('Lancer la mesure'), findsOneWidget);
-    expect(find.text('Prêt.'), findsOneWidget);
-  });
+      expect(find.text('Mesurer'), findsOneWidget);
+      for (final preset in SignalPresets.all) {
+        expect(find.text(preset.name), findsOneWidget);
+      }
+      expect(find.text('Lancer la mesure'), findsOneWidget);
+      expect(find.text('Prêt.'), findsOneWidget);
+    },
+  );
 
-  testWidgets('selecting a different preset updates the displayed signal params', (tester) async {
-    await tester.pumpWidget(wrap());
-    await tester.pumpAndSettle();
+  testWidgets(
+    'selecting a different preset updates the displayed signal params',
+    (tester) async {
+      await tester.pumpWidget(wrap());
+      await tester.pumpAndSettle();
 
-    expect(find.text('Signal: Sweep logarithmique'), findsOneWidget);
+      expect(find.text('Signal: Sweep logarithmique'), findsOneWidget);
 
-    await tester.tap(find.text('Calibration pink noise'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Calibration pink noise'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Signal: Bruit rose'), findsOneWidget);
-  });
+      expect(find.text('Signal: Bruit rose'), findsOneWidget);
+    },
+  );
 
-  testWidgets('level slider drag updates the level label without crashing', (tester) async {
+  testWidgets('level slider drag updates the level label without crashing', (
+    tester,
+  ) async {
     await tester.pumpWidget(wrap());
     await tester.pumpAndSettle();
 

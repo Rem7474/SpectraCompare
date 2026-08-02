@@ -8,7 +8,11 @@ class WavData {
   final int channels;
   final Float64List samples;
 
-  const WavData({required this.sampleRate, required this.channels, required this.samples});
+  const WavData({
+    required this.sampleRate,
+    required this.channels,
+    required this.samples,
+  });
 }
 
 /// Minimal 16-bit PCM WAV encoder/decoder. This app always works with mono,
@@ -16,7 +20,11 @@ class WavData {
 class WavEncoder {
   const WavEncoder._();
 
-  static Uint8List encode(List<double> samples, {int sampleRate = 44100, int channels = 1}) {
+  static Uint8List encode(
+    List<double> samples, {
+    int sampleRate = 44100,
+    int channels = 1,
+  }) {
     final dataLength = samples.length * 2; // 16-bit = 2 bytes/sample
     final byteRate = sampleRate * channels * 2;
     final blockAlign = channels * 2;
@@ -94,7 +102,10 @@ class WavDecoder {
       offset = chunkDataStart + chunkSize + (chunkSize.isOdd ? 1 : 0);
     }
 
-    if (sampleRate == null || channels == null || dataOffset == null || dataLength == null) {
+    if (sampleRate == null ||
+        channels == null ||
+        dataOffset == null ||
+        dataLength == null) {
       throw const FormatException('Missing fmt or data chunk');
     }
     if (audioFormat != 1 || bitsPerSample != 16) {
@@ -110,6 +121,10 @@ class WavDecoder {
       samples[i] = s / 32768.0;
     }
 
-    return WavData(sampleRate: sampleRate, channels: channels, samples: samples);
+    return WavData(
+      sampleRate: sampleRate,
+      channels: channels,
+      samples: samples,
+    );
   }
 }

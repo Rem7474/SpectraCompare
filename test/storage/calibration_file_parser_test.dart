@@ -38,7 +38,10 @@ void main() {
     });
 
     test('throws FormatException when no valid rows are found', () {
-      expect(() => CalibrationFileParser.parse('# just a comment\n'), throwsFormatException);
+      expect(
+        () => CalibrationFileParser.parse('# just a comment\n'),
+        throwsFormatException,
+      );
     });
   });
 }

@@ -10,7 +10,11 @@ class FrequencyResponseSeries {
   final FrequencyResponse response;
   final Color color;
 
-  const FrequencyResponseSeries({required this.label, required this.response, required this.color});
+  const FrequencyResponseSeries({
+    required this.label,
+    required this.response,
+    required this.color,
+  });
 }
 
 /// Plots one or more frequency response curves, x-axis in log10(Hz) so a
@@ -25,7 +29,9 @@ class FrequencyResponseChart extends StatelessWidget {
   static double _fromLog10(double x) => math.pow(10, x).toDouble();
 
   static String _formatFreq(double hz) {
-    if (hz >= 1000) return '${(hz / 1000).toStringAsFixed(hz >= 10000 ? 0 : 1)}k';
+    if (hz >= 1000) {
+      return '${(hz / 1000).toStringAsFixed(hz >= 10000 ? 0 : 1)}k';
+    }
     return hz.toStringAsFixed(0);
   }
 
@@ -100,13 +106,22 @@ class FrequencyResponseChart extends StatelessWidget {
                     interval: math.max((maxX - minX) / 5, 0.001),
                     getTitlesWidget: (value, meta) => Padding(
                       padding: const EdgeInsets.only(top: 4),
-                      child: Text(_formatFreq(_fromLog10(value)), style: const TextStyle(fontSize: 10)),
+                      child: Text(
+                        _formatFreq(_fromLog10(value)),
+                        style: const TextStyle(fontSize: 10),
+                      ),
                     ),
                   ),
                 ),
-                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 36)),
-                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: true, reservedSize: 36),
+                ),
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
               ),
             ),
           ),

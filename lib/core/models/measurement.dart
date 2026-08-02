@@ -62,7 +62,10 @@ class Measurement {
   /// A short, human-readable label for lists (e.g. "JBL 305P — 1m, sweep").
   String get displayName {
     final parts = <String>[
-      if (speakerModel != null && speakerModel!.isNotEmpty) speakerModel! else 'Mesure',
+      if (speakerModel != null && speakerModel!.isNotEmpty)
+        speakerModel!
+      else
+        'Mesure',
       if (position != null && position!.isNotEmpty) position!,
     ];
     return parts.join(' — ');

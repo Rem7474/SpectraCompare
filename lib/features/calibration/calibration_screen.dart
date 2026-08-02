@@ -33,7 +33,10 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Nom')),
+              TextField(
+                controller: nameCtrl,
+                decoration: const InputDecoration(labelText: 'Nom'),
+              ),
               const SizedBox(height: 8),
               const Text(
                 'Colle le contenu du fichier de calibration (format REW/miniDSP: '
@@ -43,16 +46,24 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
               TextField(
                 controller: contentsCtrl,
                 maxLines: 8,
-                decoration: const InputDecoration(hintText: '20 1.2\n100 0.5\n1000 0.0\n...'),
+                decoration: const InputDecoration(
+                  hintText: '20 1.2\n100 0.5\n1000 0.0\n...',
+                ),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Annuler')),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Annuler'),
+          ),
           FilledButton(
             onPressed: () async {
-              await controller.importFromText(contentsCtrl.text, nameCtrl.text.trim());
+              await controller.importFromText(
+                contentsCtrl.text,
+                nameCtrl.text.trim(),
+              );
               if (dialogContext.mounted) Navigator.of(dialogContext).pop();
             },
             child: const Text('Importer'),
@@ -84,7 +95,10 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
             if (calibration.errorMessage != null)
               Padding(
                 padding: const EdgeInsets.all(8),
-                child: Text(calibration.errorMessage!, style: const TextStyle(color: Colors.red)),
+                child: Text(
+                  calibration.errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
               ),
             Expanded(
               child: ListView(

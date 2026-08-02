@@ -46,20 +46,20 @@ class ExportService {
   }
 
   static Map<String, dynamic> measurementToJsonMap(Measurement m) => {
-        'id': m.id,
-        'createdAt': m.createdAt.toIso8601String(),
-        'speakerModel': m.speakerModel,
-        'position': m.position,
-        'distanceM': m.distanceM,
-        'outputLevelDbfs': m.outputLevelDbfs,
-        'signalConfig': m.signalConfig.toJson(),
-        'sampleRate': m.sampleRate,
-        'offsetSamples': m.offsetSamples,
-        'correlationConfidence': m.correlationConfidence,
-        'tags': m.tags,
-        'notes': m.notes,
-        'frequencyResponse': m.frequencyResponse.toJsonList(),
-      };
+    'id': m.id,
+    'createdAt': m.createdAt.toIso8601String(),
+    'speakerModel': m.speakerModel,
+    'position': m.position,
+    'distanceM': m.distanceM,
+    'outputLevelDbfs': m.outputLevelDbfs,
+    'signalConfig': m.signalConfig.toJson(),
+    'sampleRate': m.sampleRate,
+    'offsetSamples': m.offsetSamples,
+    'correlationConfidence': m.correlationConfidence,
+    'tags': m.tags,
+    'notes': m.notes,
+    'frequencyResponse': m.frequencyResponse.toJsonList(),
+  };
 
   static String measurementToJson(Measurement m) {
     const encoder = JsonEncoder.withIndent('  ');

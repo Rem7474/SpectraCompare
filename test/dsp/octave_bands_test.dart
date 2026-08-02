@@ -6,18 +6,22 @@ import 'package:spectra_compare/core/models/frequency_response.dart';
 
 void main() {
   group('OctaveBands', () {
-    test('center frequencies span 20Hz-20kHz and are monotonically increasing', () {
-      final centers = OctaveBands.thirdOctaveCenters;
-      expect(centers.first, lessThan(25));
-      expect(centers.last, greaterThan(15000));
-      for (int i = 1; i < centers.length; i++) {
-        expect(centers[i], greaterThan(centers[i - 1]));
-      }
-    });
+    test(
+      'center frequencies span 20Hz-20kHz and are monotonically increasing',
+      () {
+        final centers = OctaveBands.thirdOctaveCenters;
+        expect(centers.first, lessThan(25));
+        expect(centers.last, greaterThan(15000));
+        for (int i = 1; i < centers.length; i++) {
+          expect(centers[i], greaterThan(centers[i - 1]));
+        }
+      },
+    );
 
     test('resample averages a flat response to a flat band curve', () {
       final points = [
-        for (double f = 20; f <= 20000; f *= 1.02) FrequencyResponsePoint(f, -5.0),
+        for (double f = 20; f <= 20000; f *= 1.02)
+          FrequencyResponsePoint(f, -5.0),
       ];
       final resampled = OctaveBands.resample(FrequencyResponse(points));
       expect(resampled.points, isNotEmpty);

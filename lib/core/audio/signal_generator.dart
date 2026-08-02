@@ -33,9 +33,17 @@ class SignalGenerator {
       case SignalType.whiteNoise:
         raw = whiteNoise((config.durationS * sampleRate).round());
       case SignalType.burst:
-        raw = burst(freq: config.frequencyHz, durationS: config.durationS, sampleRate: sampleRate);
+        raw = burst(
+          freq: config.frequencyHz,
+          durationS: config.durationS,
+          sampleRate: sampleRate,
+        );
       case SignalType.pureTone:
-        raw = pureTone(freq: config.frequencyHz, durationS: config.durationS, sampleRate: sampleRate);
+        raw = pureTone(
+          freq: config.frequencyHz,
+          durationS: config.durationS,
+          sampleRate: sampleRate,
+        );
     }
     return applyLevelDbfs(raw, config.levelDbfs);
   }
@@ -65,7 +73,8 @@ class SignalGenerator {
       for (int i = 0; i < n; i++) {
         final t = i / sampleRate;
         // Instantaneous phase for a linear frequency ramp f(t) = f0 + (f1-f0)t/T
-        final phase = 2 * math.pi * (f0 * t + (f1 - f0) * t * t / (2 * durationS));
+        final phase =
+            2 * math.pi * (f0 * t + (f1 - f0) * t * t / (2 * durationS));
         out[i] = math.sin(phase);
       }
     }
@@ -104,17 +113,29 @@ class SignalGenerator {
   /// Short tone burst (transient impulse for rattle/reactivity tests, and the
   /// calibration chirp uses this too when `freq` maps to a short log sweep —
   /// see `calibrationChirp`).
-  static Float64List burst({required double freq, required double durationS, required int sampleRate}) {
+  static Float64List burst({
+    required double freq,
+    required double durationS,
+    required int sampleRate,
+  }) {
     final n = (durationS * sampleRate).round();
     final out = Float64List(n);
     for (int i = 0; i < n; i++) {
       final t = i / sampleRate;
       out[i] = math.sin(2 * math.pi * freq * t);
     }
-    return _applyEdgeFade(out, sampleRate, fadeMs: math.min(5, durationS * 1000 / 4));
+    return _applyEdgeFade(
+      out,
+      sampleRate,
+      fadeMs: math.min(5, durationS * 1000 / 4),
+    );
   }
 
-  static Float64List pureTone({required double freq, required double durationS, required int sampleRate}) {
+  static Float64List pureTone({
+    required double freq,
+    required double durationS,
+    required int sampleRate,
+  }) {
     final n = (durationS * sampleRate).round();
     final out = Float64List(n);
     for (int i = 0; i < n; i++) {
@@ -127,8 +148,17 @@ class SignalGenerator {
   /// The signal embedded at the start of every measurement to determine the
   /// real playback→recording latency via cross-correlation (default sync
   /// method regardless of output route — see README).
-  static Float64List calibrationChirp({int sampleRate = 44100, double durationS = 0.15}) {
-    return sineSweep(f0: 200, f1: 6000, durationS: durationS, sampleRate: sampleRate, logarithmic: true);
+  static Float64List calibrationChirp({
+    int sampleRate = 44100,
+    double durationS = 0.15,
+  }) {
+    return sineSweep(
+      f0: 200,
+      f1: 6000,
+      durationS: durationS,
+      sampleRate: sampleRate,
+      logarithmic: true,
+    );
   }
 
   static Float64List applyLevelDbfs(Float64List samples, double dBFS) {
@@ -140,8 +170,15 @@ class SignalGenerator {
     return out;
   }
 
-  static Float64List _applyEdgeFade(Float64List samples, int sampleRate, {double fadeMs = 5}) {
-    final fadeSamples = math.min(samples.length ~/ 2, (fadeMs * sampleRate / 1000).round());
+  static Float64List _applyEdgeFade(
+    Float64List samples,
+    int sampleRate, {
+    double fadeMs = 5,
+  }) {
+    final fadeSamples = math.min(
+      samples.length ~/ 2,
+      (fadeMs * sampleRate / 1000).round(),
+    );
     if (fadeSamples <= 0) return samples;
     for (int i = 0; i < fadeSamples; i++) {
       final g = i / fadeSamples;

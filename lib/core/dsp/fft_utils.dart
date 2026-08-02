@@ -23,9 +23,11 @@ class FftUtils {
     return p;
   }
 
-  static double linearToDb(double linear) => 20 * (math.log(linear.clamp(_epsilonDb, double.infinity)) / math.ln10);
+  static double linearToDb(double linear) =>
+      20 * (math.log(linear.clamp(_epsilonDb, double.infinity)) / math.ln10);
 
-  static double powerToDb(double power) => 10 * (math.log(power.clamp(_epsilonDb, double.infinity)) / math.ln10);
+  static double powerToDb(double power) =>
+      10 * (math.log(power.clamp(_epsilonDb, double.infinity)) / math.ln10);
 
   static double dbToLinear(double db) => math.pow(10, db / 20).toDouble();
 

@@ -31,7 +31,9 @@ void main() {
     expect(find.text('Aucune mesure enregistrée.'), findsOneWidget);
   });
 
-  testWidgets('lists a saved measurement and opens its detail screen on tap', (tester) async {
+  testWidgets('lists a saved measurement and opens its detail screen on tap', (
+    tester,
+  ) async {
     final appDb = testAppDatabase();
     final dao = MeasurementDao(appDb);
     await dao.insert(
@@ -41,7 +43,9 @@ void main() {
         outputLevelDbfs: -20,
         signalConfig: const SignalConfig(type: SignalType.sineSweepLog),
         sampleRate: 44100,
-        frequencyResponse: const FrequencyResponse([FrequencyResponsePoint(1000, -1.0)]),
+        frequencyResponse: const FrequencyResponse([
+          FrequencyResponsePoint(1000, -1.0),
+        ]),
       ),
     );
 

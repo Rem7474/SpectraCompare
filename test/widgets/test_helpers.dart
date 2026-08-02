@@ -12,5 +12,8 @@ import 'package:spectra_compare/core/storage/database.dart';
 /// The no-isolate factory runs queries as plain synchronous-then-microtask
 /// calls, which the fake-async zone handles fine.
 AppDatabase testAppDatabase() {
-  return AppDatabase(factory: databaseFactoryFfiNoIsolate, path: inMemoryDatabasePath);
+  return AppDatabase(
+    factory: databaseFactoryFfiNoIsolate,
+    path: inMemoryDatabasePath,
+  );
 }

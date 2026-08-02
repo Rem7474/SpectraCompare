@@ -1,4 +1,11 @@
-enum SignalType { sineSweepLog, sineSweepLinear, pinkNoise, whiteNoise, burst, pureTone }
+enum SignalType {
+  sineSweepLog,
+  sineSweepLinear,
+  pinkNoise,
+  whiteNoise,
+  burst,
+  pureTone,
+}
 
 /// Configuration for a generated test signal (see `SignalGenerator`).
 class SignalConfig {
@@ -37,20 +44,20 @@ class SignalConfig {
   }
 
   Map<String, dynamic> toJson() => {
-        'type': type.name,
-        'startFreqHz': startFreqHz,
-        'endFreqHz': endFreqHz,
-        'frequencyHz': frequencyHz,
-        'durationS': durationS,
-        'levelDbfs': levelDbfs,
-      };
+    'type': type.name,
+    'startFreqHz': startFreqHz,
+    'endFreqHz': endFreqHz,
+    'frequencyHz': frequencyHz,
+    'durationS': durationS,
+    'levelDbfs': levelDbfs,
+  };
 
   factory SignalConfig.fromJson(Map<String, dynamic> json) => SignalConfig(
-        type: SignalType.values.firstWhere((e) => e.name == json['type']),
-        startFreqHz: (json['startFreqHz'] as num).toDouble(),
-        endFreqHz: (json['endFreqHz'] as num).toDouble(),
-        frequencyHz: (json['frequencyHz'] as num).toDouble(),
-        durationS: (json['durationS'] as num).toDouble(),
-        levelDbfs: (json['levelDbfs'] as num).toDouble(),
-      );
+    type: SignalType.values.firstWhere((e) => e.name == json['type']),
+    startFreqHz: (json['startFreqHz'] as num).toDouble(),
+    endFreqHz: (json['endFreqHz'] as num).toDouble(),
+    frequencyHz: (json['frequencyHz'] as num).toDouble(),
+    durationS: (json['durationS'] as num).toDouble(),
+    levelDbfs: (json['levelDbfs'] as num).toDouble(),
+  );
 }

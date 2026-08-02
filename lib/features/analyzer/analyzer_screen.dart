@@ -17,7 +17,10 @@ class AnalyzerScreen extends StatelessWidget {
         ? const FrequencyResponse([])
         : FrequencyResponse([
             for (int i = 0; i < spectrum.freqsHz.length; i++)
-              FrequencyResponsePoint(spectrum.freqsHz[i], spectrum.magnitudesDb[i]),
+              FrequencyResponsePoint(
+                spectrum.freqsHz[i],
+                spectrum.magnitudesDb[i],
+              ),
           ]);
 
     return Scaffold(
@@ -26,7 +29,8 @@ class AnalyzerScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(analyzer.isRunning ? Icons.stop : Icons.mic),
-            onPressed: () => analyzer.isRunning ? analyzer.stop() : analyzer.start(),
+            onPressed: () =>
+                analyzer.isRunning ? analyzer.stop() : analyzer.start(),
           ),
         ],
       ),
@@ -36,7 +40,10 @@ class AnalyzerScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Spectre 20Hz–20kHz', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'Spectre 20Hz–20kHz',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 8),
               SizedBox(
                 height: 220,
@@ -51,13 +58,20 @@ class AnalyzerScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Spectrogramme', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                'Spectrogramme',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               const SizedBox(height: 8),
               Expanded(
                 child: Container(
-                  decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400)),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey.shade400),
+                  ),
                   child: CustomPaint(
-                    painter: SpectrogramPainter(columns: analyzer.spectrogramColumns),
+                    painter: SpectrogramPainter(
+                      columns: analyzer.spectrogramColumns,
+                    ),
                     size: Size.infinite,
                   ),
                 ),

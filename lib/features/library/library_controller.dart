@@ -26,8 +26,8 @@ class LibraryController extends ChangeNotifier {
   }
 
   Set<String> get allTags => {
-        for (final m in measurements) ...m.tags,
-        for (final m in measurements)
-          if (m.speakerModel != null && m.speakerModel!.isNotEmpty) m.speakerModel!,
-      };
+    for (final m in measurements) ...m.tags,
+    for (final m in measurements)
+      if (m.speakerModel != null && m.speakerModel!.isNotEmpty) m.speakerModel!,
+  };
 }

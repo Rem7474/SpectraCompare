@@ -33,7 +33,12 @@ class Welch {
     List<double>? freqs;
     List<double>? sumPower;
     for (final seg in segments) {
-      final spec = FftUtils.magnitudeSpectrum(seg, sampleRate, hannWindow: true, fftSize: segmentLength);
+      final spec = FftUtils.magnitudeSpectrum(
+        seg,
+        sampleRate,
+        hannWindow: true,
+        fftSize: segmentLength,
+      );
       freqs ??= spec.freqsHz;
       sumPower ??= List<double>.filled(spec.magnitudesDb.length, 0);
       for (int i = 0; i < spec.magnitudesDb.length; i++) {
@@ -45,7 +50,9 @@ class Welch {
     final points = <FrequencyResponsePoint>[];
     for (int i = 0; i < freqs!.length; i++) {
       final avgPower = sumPower![i] / n;
-      points.add(FrequencyResponsePoint(freqs[i], FftUtils.powerToDb(avgPower)));
+      points.add(
+        FrequencyResponsePoint(freqs[i], FftUtils.powerToDb(avgPower)),
+      );
     }
     return FrequencyResponse(points);
   }

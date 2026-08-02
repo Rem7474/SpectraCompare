@@ -26,7 +26,10 @@ class CorrelationResult {
 class CrossCorrelation {
   const CrossCorrelation._();
 
-  static CorrelationResult findOffset(List<double> reference, List<double> recorded) {
+  static CorrelationResult findOffset(
+    List<double> reference,
+    List<double> recorded,
+  ) {
     if (reference.isEmpty || recorded.isEmpty) {
       return const CorrelationResult(0, 0);
     }
@@ -62,7 +65,9 @@ class CrossCorrelation {
 
     final refEnergy = _energy(reference);
     final segEnd = math.min(recorded.length, bestIndex + reference.length);
-    final recEnergy = _energy(recorded.sublist(math.min(bestIndex, recorded.length), segEnd));
+    final recEnergy = _energy(
+      recorded.sublist(math.min(bestIndex, recorded.length), segEnd),
+    );
     final denom = math.sqrt(refEnergy * recEnergy);
     final confidence = denom > 0 ? (bestValue / denom).clamp(0.0, 2.0) : 0.0;
 

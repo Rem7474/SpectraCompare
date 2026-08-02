@@ -4,7 +4,10 @@ class FrequencyResponsePoint {
 
   const FrequencyResponsePoint(this.freqHz, this.magnitudeDb);
 
-  Map<String, dynamic> toJson() => {'freqHz': freqHz, 'magnitudeDb': magnitudeDb};
+  Map<String, dynamic> toJson() => {
+    'freqHz': freqHz,
+    'magnitudeDb': magnitudeDb,
+  };
 
   factory FrequencyResponsePoint.fromJson(Map<String, dynamic> json) =>
       FrequencyResponsePoint(
@@ -21,17 +24,34 @@ class FrequencyResponse {
 
   const FrequencyResponse(this.points);
 
-  List<Map<String, dynamic>> toJsonList() => points.map((p) => p.toJson()).toList();
+  List<Map<String, dynamic>> toJsonList() =>
+      points.map((p) => p.toJson()).toList();
 
-  factory FrequencyResponse.fromJsonList(List<dynamic> list) => FrequencyResponse(
-        list.map((e) => FrequencyResponsePoint.fromJson(Map<String, dynamic>.from(e as Map))).toList(),
+  factory FrequencyResponse.fromJsonList(List<dynamic> list) =>
+      FrequencyResponse(
+        list
+            .map(
+              (e) => FrequencyResponsePoint.fromJson(
+                Map<String, dynamic>.from(e as Map),
+              ),
+            )
+            .toList(),
       );
 
   /// Applies a mic calibration correction curve to every point, returning a
   /// new corrected `FrequencyResponse`.
-  FrequencyResponse withCorrection(double Function(double freqHz) correctionAt) {
+  FrequencyResponse withCorrection(
+    double Function(double freqHz) correctionAt,
+  ) {
     return FrequencyResponse(
-      points.map((p) => FrequencyResponsePoint(p.freqHz, p.magnitudeDb + correctionAt(p.freqHz))).toList(),
+      points
+          .map(
+            (p) => FrequencyResponsePoint(
+              p.freqHz,
+              p.magnitudeDb + correctionAt(p.freqHz),
+            ),
+          )
+          .toList(),
     );
   }
 }

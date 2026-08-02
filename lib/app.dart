@@ -27,15 +27,26 @@ class SpectraCompareApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => GeneratorController()),
-        ChangeNotifierProvider(create: (_) => MeasurementController(measurementDao: measurementDao)),
+        ChangeNotifierProvider(
+          create: (_) => MeasurementController(measurementDao: measurementDao),
+        ),
         ChangeNotifierProvider(create: (_) => AnalyzerController()),
-        ChangeNotifierProvider(create: (_) => LibraryController(measurementDao: measurementDao)),
-        ChangeNotifierProvider(create: (_) => ComparisonController(measurementDao: measurementDao)),
-        ChangeNotifierProvider(create: (_) => CalibrationController(dao: calibrationCurveDao)),
+        ChangeNotifierProvider(
+          create: (_) => LibraryController(measurementDao: measurementDao),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ComparisonController(measurementDao: measurementDao),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CalibrationController(dao: calibrationCurveDao),
+        ),
       ],
       child: MaterialApp(
         title: 'SpectraCompare',
-        theme: ThemeData(colorSchemeSeed: Colors.deepPurple, useMaterial3: true),
+        theme: ThemeData(
+          colorSchemeSeed: Colors.deepPurple,
+          useMaterial3: true,
+        ),
         darkTheme: ThemeData(
           colorSchemeSeed: Colors.deepPurple,
           brightness: Brightness.dark,
@@ -74,9 +85,18 @@ class _RootShellState extends State<RootShell> {
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: const [
           NavigationDestination(icon: Icon(Icons.graphic_eq), label: 'Mesurer'),
-          NavigationDestination(icon: Icon(Icons.show_chart), label: 'Analyseur'),
-          NavigationDestination(icon: Icon(Icons.folder_outlined), label: 'Bibliothèque'),
-          NavigationDestination(icon: Icon(Icons.compare_arrows), label: 'Comparaison'),
+          NavigationDestination(
+            icon: Icon(Icons.show_chart),
+            label: 'Analyseur',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.folder_outlined),
+            label: 'Bibliothèque',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.compare_arrows),
+            label: 'Comparaison',
+          ),
           NavigationDestination(icon: Icon(Icons.tune), label: 'Calibration'),
         ],
       ),

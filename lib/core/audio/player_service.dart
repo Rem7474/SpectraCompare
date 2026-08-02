@@ -12,12 +12,14 @@ import 'measurement_session.dart' show Player;
 class PlayerService implements Player {
   final ja.AudioPlayer _player;
 
-  PlayerService({ja.AudioPlayer? player}) : _player = player ?? ja.AudioPlayer();
+  PlayerService({ja.AudioPlayer? player})
+    : _player = player ?? ja.AudioPlayer();
 
   @override
   Future<void> play(Uint8List wavBytes) async {
     final dir = await getTemporaryDirectory();
-    final path = '${dir.path}/spectracompare_play_${DateTime.now().microsecondsSinceEpoch}.wav';
+    final path =
+        '${dir.path}/spectracompare_play_${DateTime.now().microsecondsSinceEpoch}.wav';
     await File(path).writeAsBytes(wavBytes, flush: true);
 
     await _player.setFilePath(path);

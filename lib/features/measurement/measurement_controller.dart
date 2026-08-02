@@ -14,7 +14,14 @@ import '../../core/models/measurement.dart';
 import '../../core/models/signal_config.dart';
 import '../../core/storage/database.dart';
 
-enum MeasurementStatus { idle, permissionDenied, measuring, analyzing, done, error }
+enum MeasurementStatus {
+  idle,
+  permissionDenied,
+  measuring,
+  analyzing,
+  done,
+  error,
+}
 
 /// Drives the "lancer une mesure" flow (README "Utilisation"): runs a
 /// `MeasurementSession`, extracts a frequency response appropriate to the
@@ -24,7 +31,10 @@ class MeasurementController extends ChangeNotifier {
   final MeasurementDao measurementDao;
   final int sampleRate;
 
-  MeasurementController({required this.measurementDao, this.sampleRate = 44100});
+  MeasurementController({
+    required this.measurementDao,
+    this.sampleRate = 44100,
+  });
 
   MeasurementStatus status = MeasurementStatus.idle;
   String? errorMessage;
@@ -61,7 +71,11 @@ class MeasurementController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final session = MeasurementSession(recorder: recorder, player: player, sampleRate: sampleRate);
+      final session = MeasurementSession(
+        recorder: recorder,
+        player: player,
+        sampleRate: sampleRate,
+      );
       final result = await session.run(signalConfig);
       lastResult = result;
 
@@ -96,7 +110,10 @@ class MeasurementController extends ChangeNotifier {
             durationS: config.durationS,
             sampleRate: sampleRate,
           );
-          return deconvolver.frequencyResponseFrom(result.mainSignalSegment, referenceSweep);
+          return deconvolver.frequencyResponseFrom(
+            result.mainSignalSegment,
+            referenceSweep,
+          );
         }
         return _singleFft(result.mainSignalSegment);
       case SignalType.pinkNoise:

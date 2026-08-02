@@ -12,12 +12,14 @@ class AudioSessionSetup {
     await session.configure(
       AudioSessionConfiguration(
         avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
-        avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.allowBluetooth |
+        avAudioSessionCategoryOptions:
+            AVAudioSessionCategoryOptions.allowBluetooth |
             AVAudioSessionCategoryOptions.defaultToSpeaker,
         // `measurement` disables iOS's AGC/echo-cancellation/noise-suppression,
         // which would otherwise corrupt frequency-response measurements.
         avAudioSessionMode: AVAudioSessionMode.measurement,
-        avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
+        avAudioSessionRouteSharingPolicy:
+            AVAudioSessionRouteSharingPolicy.defaultPolicy,
         androidAudioAttributes: AndroidAudioAttributes(
           contentType: AndroidAudioContentType.unknown,
           usage: AndroidAudioUsage.media,

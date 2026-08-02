@@ -27,7 +27,11 @@ class AnalyzerController extends ChangeNotifier {
 
   StreamSubscription<Uint8List>? _sub;
   PcmRingBuffer? _ringBuffer;
-  late final List<double> _spectrogramFreqs = _logSpacedFreqs(20, 20000, spectrogramBands);
+  late final List<double> _spectrogramFreqs = _logSpacedFreqs(
+    20,
+    20000,
+    spectrogramBands,
+  );
 
   bool isRunning = false;
   Spectrum? latestSpectrum;
@@ -42,7 +46,11 @@ class AnalyzerController extends ChangeNotifier {
 
     _ringBuffer = PcmRingBuffer(frameSize: frameSize, hopSize: frameSize ~/ 2);
     final stream = await _recorder.startStream(
-      rec.RecordConfig(encoder: rec.AudioEncoder.pcm16bits, sampleRate: sampleRate, numChannels: 1),
+      rec.RecordConfig(
+        encoder: rec.AudioEncoder.pcm16bits,
+        sampleRate: sampleRate,
+        numChannels: 1,
+      ),
     );
     isRunning = true;
     notifyListeners();
@@ -87,7 +95,10 @@ class AnalyzerController extends ChangeNotifier {
 
   static List<double> _logSpacedFreqs(double f0, double f1, int count) {
     final logF0 = math.log(f0), logF1 = math.log(f1);
-    return List.generate(count, (i) => math.exp(logF0 + (logF1 - logF0) * i / (count - 1)));
+    return List.generate(
+      count,
+      (i) => math.exp(logF0 + (logF1 - logF0) * i / (count - 1)),
+    );
   }
 
   Future<void> stop() async {

@@ -16,53 +16,56 @@ void main() {
     sqfliteFfiInit();
   });
 
-  testWidgets('selecting two measurements shows an overlay chart and a delta summary', (tester) async {
-    final appDb = testAppDatabase();
-    final dao = MeasurementDao(appDb);
-    await dao.insert(
-      Measurement(
-        createdAt: DateTime(2026, 1, 1),
-        speakerModel: 'Speaker A',
-        outputLevelDbfs: -20,
-        signalConfig: const SignalConfig(type: SignalType.sineSweepLog),
-        sampleRate: 44100,
-        frequencyResponse: const FrequencyResponse([
-          FrequencyResponsePoint(1000, 0.0),
-          FrequencyResponsePoint(2000, -1.0),
-        ]),
-      ),
-    );
-    await dao.insert(
-      Measurement(
-        createdAt: DateTime(2026, 1, 2),
-        speakerModel: 'Speaker B',
-        outputLevelDbfs: -20,
-        signalConfig: const SignalConfig(type: SignalType.sineSweepLog),
-        sampleRate: 44100,
-        frequencyResponse: const FrequencyResponse([
-          FrequencyResponsePoint(1000, -2.0),
-          FrequencyResponsePoint(2000, -3.0),
-        ]),
-      ),
-    );
+  testWidgets(
+    'selecting two measurements shows an overlay chart and a delta summary',
+    (tester) async {
+      final appDb = testAppDatabase();
+      final dao = MeasurementDao(appDb);
+      await dao.insert(
+        Measurement(
+          createdAt: DateTime(2026, 1, 1),
+          speakerModel: 'Speaker A',
+          outputLevelDbfs: -20,
+          signalConfig: const SignalConfig(type: SignalType.sineSweepLog),
+          sampleRate: 44100,
+          frequencyResponse: const FrequencyResponse([
+            FrequencyResponsePoint(1000, 0.0),
+            FrequencyResponsePoint(2000, -1.0),
+          ]),
+        ),
+      );
+      await dao.insert(
+        Measurement(
+          createdAt: DateTime(2026, 1, 2),
+          speakerModel: 'Speaker B',
+          outputLevelDbfs: -20,
+          signalConfig: const SignalConfig(type: SignalType.sineSweepLog),
+          sampleRate: 44100,
+          frequencyResponse: const FrequencyResponse([
+            FrequencyResponsePoint(1000, -2.0),
+            FrequencyResponsePoint(2000, -3.0),
+          ]),
+        ),
+      );
 
-    await tester.pumpWidget(
-      ChangeNotifierProvider(
-        create: (_) => ComparisonController(measurementDao: dao),
-        child: const MaterialApp(home: ComparisonScreen()),
-      ),
-    );
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => ComparisonController(measurementDao: dao),
+          child: const MaterialApp(home: ComparisonScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.text('Speaker A'), findsOneWidget);
-    expect(find.text('Speaker B'), findsOneWidget);
-    expect(find.text('Sélectionne au moins une mesure.'), findsOneWidget);
+      expect(find.text('Speaker A'), findsOneWidget);
+      expect(find.text('Speaker B'), findsOneWidget);
+      expect(find.text('Sélectionne au moins une mesure.'), findsOneWidget);
 
-    await tester.tap(find.text('Speaker A'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Speaker B'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Speaker A'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Speaker B'));
+      await tester.pumpAndSettle();
 
-    expect(find.textContaining('Delta vs.'), findsOneWidget);
-  });
+      expect(find.textContaining('Delta vs.'), findsOneWidget);
+    },
+  );
 }

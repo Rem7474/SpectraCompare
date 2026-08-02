@@ -8,11 +8,17 @@ import '../models/calibration_curve.dart';
 class CalibrationFileParser {
   const CalibrationFileParser._();
 
-  static CalibrationCurve parse(String contents, {String name = 'Calibration'}) {
+  static CalibrationCurve parse(
+    String contents, {
+    String name = 'Calibration',
+  }) {
     final points = <CalibrationPoint>[];
     for (final rawLine in contents.split('\n')) {
       final line = rawLine.trim();
-      if (line.isEmpty || line.startsWith('#') || line.startsWith('*') || line.startsWith(';')) {
+      if (line.isEmpty ||
+          line.startsWith('#') ||
+          line.startsWith('*') ||
+          line.startsWith(';')) {
         continue;
       }
       final parts = line.split(RegExp(r'[\s,\t]+'));
@@ -23,7 +29,9 @@ class CalibrationFileParser {
       points.add(CalibrationPoint(freq, db));
     }
     if (points.isEmpty) {
-      throw const FormatException('No valid frequency/dB rows found in calibration file');
+      throw const FormatException(
+        'No valid frequency/dB rows found in calibration file',
+      );
     }
     points.sort((a, b) => a.freqHz.compareTo(b.freqHz));
     return CalibrationCurve(name: name, points: points);

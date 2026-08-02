@@ -29,7 +29,10 @@ class SpectrogramPainter extends CustomPainter {
         final t = ((col[b] - minDb) / (maxDb - minDb)).clamp(0.0, 1.0);
         paint.color = _colorFor(t);
         final y = size.height - (b + 1) * rowHeight;
-        canvas.drawRect(Rect.fromLTWH(c * colWidth, y, colWidth + 1, rowHeight + 1), paint);
+        canvas.drawRect(
+          Rect.fromLTWH(c * colWidth, y, colWidth + 1, rowHeight + 1),
+          paint,
+        );
       }
     }
   }

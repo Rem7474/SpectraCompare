@@ -32,7 +32,9 @@ class OctaveBands {
     for (final fc in thirdOctaveCenters) {
       final lower = fc / bandEdge;
       final upper = fc * bandEdge;
-      final inBand = raw.points.where((p) => p.freqHz >= lower && p.freqHz < upper);
+      final inBand = raw.points.where(
+        (p) => p.freqHz >= lower && p.freqHz < upper,
+      );
       if (inBand.isEmpty) continue;
       double sumPower = 0;
       int count = 0;
@@ -40,7 +42,9 @@ class OctaveBands {
         sumPower += math.pow(10, p.magnitudeDb / 10).toDouble();
         count++;
       }
-      points.add(FrequencyResponsePoint(fc, FftUtils.powerToDb(sumPower / count)));
+      points.add(
+        FrequencyResponsePoint(fc, FftUtils.powerToDb(sumPower / count)),
+      );
     }
     return FrequencyResponse(points);
   }
@@ -48,8 +52,13 @@ class OctaveBands {
   /// Computes delta dB per band between [measurement] and [reference],
   /// matched by band center frequency. Bands missing from either side are
   /// omitted.
-  static Map<double, double> deltaVsReference(FrequencyResponse measurement, FrequencyResponse reference) {
-    final refByFreq = {for (final p in reference.points) p.freqHz: p.magnitudeDb};
+  static Map<double, double> deltaVsReference(
+    FrequencyResponse measurement,
+    FrequencyResponse reference,
+  ) {
+    final refByFreq = {
+      for (final p in reference.points) p.freqHz: p.magnitudeDb,
+    };
     final delta = <double, double>{};
     for (final p in measurement.points) {
       final refDb = refByFreq[p.freqHz];

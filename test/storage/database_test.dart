@@ -15,14 +15,18 @@ void main() {
 
   setUp(() {
     // In-memory DB, unique per test via a fresh AppDatabase instance.
-    appDb = AppDatabase(factory: databaseFactoryFfi, path: inMemoryDatabasePath);
+    appDb = AppDatabase(
+      factory: databaseFactoryFfi,
+      path: inMemoryDatabasePath,
+    );
   });
 
   tearDown(() async {
     await appDb.close();
   });
 
-  Measurement sampleMeasurement({String speakerModel = 'JBL 305P'}) => Measurement(
+  Measurement sampleMeasurement({String speakerModel = 'JBL 305P'}) =>
+      Measurement(
         createdAt: DateTime.utc(2026, 1, 1),
         speakerModel: speakerModel,
         position: 'axe, 1m',
@@ -98,7 +102,9 @@ void main() {
       // Update with a changed frequency response.
       final changed = loaded.copyWith(
         id: id,
-        frequencyResponse: const FrequencyResponse([FrequencyResponsePoint(500, -1.0)]),
+        frequencyResponse: const FrequencyResponse([
+          FrequencyResponsePoint(500, -1.0),
+        ]),
       );
       await dao.update(changed);
 
@@ -120,7 +126,11 @@ void main() {
       final dao = CalibrationCurveDao(appDb);
       const curve = CalibrationCurve(
         name: 'UMIK-1',
-        points: [CalibrationPoint(20, 1.5), CalibrationPoint(1000, 0.0), CalibrationPoint(20000, -2.3)],
+        points: [
+          CalibrationPoint(20, 1.5),
+          CalibrationPoint(1000, 0.0),
+          CalibrationPoint(20000, -2.3),
+        ],
       );
       final id = await dao.insert(curve, sourceFilename: 'umik1.txt');
       final loaded = await dao.getById(id);
@@ -133,7 +143,10 @@ void main() {
 
     test('getAll and delete', () async {
       final dao = CalibrationCurveDao(appDb);
-      const curve = CalibrationCurve(name: 'A', points: [CalibrationPoint(1000, 0.0)]);
+      const curve = CalibrationCurve(
+        name: 'A',
+        points: [CalibrationPoint(1000, 0.0)],
+      );
       final id = await dao.insert(curve);
       expect((await dao.getAll()).length, 1);
       await dao.delete(id);

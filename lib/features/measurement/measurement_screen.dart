@@ -57,7 +57,8 @@ class _PresetPicker extends StatelessWidget {
                 for (final preset in SignalPresets.all)
                   ChoiceChip(
                     label: Text(preset.name),
-                    selected: generator.config.type == preset.config.type &&
+                    selected:
+                        generator.config.type == preset.config.type &&
                         generator.config.durationS == preset.config.durationS,
                     onSelected: (_) => generator.selectPreset(preset),
                   ),
@@ -83,12 +84,19 @@ class _SignalParamsEditor extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Signal: ${_typeLabel(config.type)}', style: Theme.of(context).textTheme.titleMedium),
+            Text(
+              'Signal: ${_typeLabel(config.type)}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
             const SizedBox(height: 8),
-            if (config.type == SignalType.sineSweepLog || config.type == SignalType.sineSweepLinear) ...[
-              Text('${config.startFreqHz.round()}Hz – ${config.endFreqHz.round()}Hz'),
+            if (config.type == SignalType.sineSweepLog ||
+                config.type == SignalType.sineSweepLinear) ...[
+              Text(
+                '${config.startFreqHz.round()}Hz – ${config.endFreqHz.round()}Hz',
+              ),
             ],
-            if (config.type == SignalType.pureTone || config.type == SignalType.burst) ...[
+            if (config.type == SignalType.pureTone ||
+                config.type == SignalType.burst) ...[
               Text('Fréquence: ${config.frequencyHz.round()}Hz'),
             ],
             Text('Durée: ${config.durationS.toStringAsFixed(1)}s'),
@@ -113,13 +121,13 @@ class _SignalParamsEditor extends StatelessWidget {
   }
 
   String _typeLabel(SignalType type) => switch (type) {
-        SignalType.sineSweepLog => 'Sweep logarithmique',
-        SignalType.sineSweepLinear => 'Sweep linéaire',
-        SignalType.pinkNoise => 'Bruit rose',
-        SignalType.whiteNoise => 'Bruit blanc',
-        SignalType.burst => 'Burst / rattle',
-        SignalType.pureTone => 'Ton pur',
-      };
+    SignalType.sineSweepLog => 'Sweep logarithmique',
+    SignalType.sineSweepLinear => 'Sweep linéaire',
+    SignalType.pinkNoise => 'Bruit rose',
+    SignalType.whiteNoise => 'Bruit blanc',
+    SignalType.burst => 'Burst / rattle',
+    SignalType.pureTone => 'Ton pur',
+  };
 }
 
 class _MeasurementRunner extends StatelessWidget {
@@ -129,7 +137,8 @@ class _MeasurementRunner extends StatelessWidget {
   Widget build(BuildContext context) {
     final generator = context.watch<GeneratorController>();
     final measurement = context.watch<MeasurementController>();
-    final isBusy = measurement.status == MeasurementStatus.measuring ||
+    final isBusy =
+        measurement.status == MeasurementStatus.measuring ||
         measurement.status == MeasurementStatus.analyzing;
 
     return Column(
@@ -141,12 +150,17 @@ class _MeasurementRunner extends StatelessWidget {
           onPressed: isBusy
               ? null
               : () {
-                  measurement.setCalibrationCurve(context.read<CalibrationController>().selected);
+                  measurement.setCalibrationCurve(
+                    context.read<CalibrationController>().selected,
+                  );
                   measurement.runMeasurement(generator.config);
                 },
         ),
         const SizedBox(height: 8),
-        _StatusLine(status: measurement.status, errorMessage: measurement.errorMessage),
+        _StatusLine(
+          status: measurement.status,
+          errorMessage: measurement.errorMessage,
+        ),
       ],
     );
   }
@@ -163,13 +177,13 @@ class _StatusLine extends StatelessWidget {
     final (text, color) = switch (status) {
       MeasurementStatus.idle => ('Prêt.', Colors.grey),
       MeasurementStatus.permissionDenied => (
-          'Permission micro refusée — active-la dans les réglages du téléphone.',
-          Colors.red
-        ),
+        'Permission micro refusée — active-la dans les réglages du téléphone.',
+        Colors.red,
+      ),
       MeasurementStatus.measuring => (
-          'Un chirp de calibration puis le signal de test vont être joués et enregistrés…',
-          Colors.blue
-        ),
+        'Un chirp de calibration puis le signal de test vont être joués et enregistrés…',
+        Colors.blue,
+      ),
       MeasurementStatus.analyzing => ('Analyse du signal…', Colors.blue),
       MeasurementStatus.done => ('Mesure terminée.', Colors.green),
       MeasurementStatus.error => ('Erreur: $errorMessage', Colors.red),
@@ -217,7 +231,9 @@ class _ResultViewState extends State<_ResultView> {
             Text('Résultat', style: Theme.of(context).textTheme.titleMedium),
             Text(
               'Confiance de synchronisation: ${(result.confidence * 100).clamp(0, 100).toStringAsFixed(0)}%',
-              style: TextStyle(color: result.confidence > 0.5 ? Colors.green : Colors.orange),
+              style: TextStyle(
+                color: result.confidence > 0.5 ? Colors.green : Colors.orange,
+              ),
             ),
             const SizedBox(height: 8),
             SizedBox(
@@ -235,16 +251,22 @@ class _ResultViewState extends State<_ResultView> {
             const SizedBox(height: 12),
             TextField(
               controller: _speakerModelCtrl,
-              decoration: const InputDecoration(labelText: 'Modèle d\'enceinte'),
+              decoration: const InputDecoration(
+                labelText: 'Modèle d\'enceinte',
+              ),
             ),
             TextField(
               controller: _positionCtrl,
-              decoration: const InputDecoration(labelText: 'Position (ex: axe, 1m)'),
+              decoration: const InputDecoration(
+                labelText: 'Position (ex: axe, 1m)',
+              ),
             ),
             TextField(
               controller: _distanceCtrl,
               decoration: const InputDecoration(labelText: 'Distance (m)'),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
             TextField(
               controller: _notesCtrl,
@@ -256,10 +278,16 @@ class _ResultViewState extends State<_ResultView> {
               label: const Text('Sauvegarder dans la bibliothèque'),
               onPressed: () async {
                 final id = await measurement.saveToLibrary(
-                  speakerModel: _speakerModelCtrl.text.trim().isEmpty ? null : _speakerModelCtrl.text.trim(),
-                  position: _positionCtrl.text.trim().isEmpty ? null : _positionCtrl.text.trim(),
+                  speakerModel: _speakerModelCtrl.text.trim().isEmpty
+                      ? null
+                      : _speakerModelCtrl.text.trim(),
+                  position: _positionCtrl.text.trim().isEmpty
+                      ? null
+                      : _positionCtrl.text.trim(),
                   distanceM: double.tryParse(_distanceCtrl.text.trim()),
-                  notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+                  notes: _notesCtrl.text.trim().isEmpty
+                      ? null
+                      : _notesCtrl.text.trim(),
                 );
                 if (id != null && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -275,4 +303,3 @@ class _ResultViewState extends State<_ResultView> {
     );
   }
 }
-

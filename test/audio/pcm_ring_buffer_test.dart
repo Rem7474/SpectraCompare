@@ -19,17 +19,23 @@ void main() {
       expect(frames, isEmpty);
     });
 
-    test('emits a frame once frameSize samples accumulate, across irregular chunks', () {
-      final buffer = PcmRingBuffer(frameSize: 8);
-      var frames = buffer.addBytes(_pcm16Bytes(List.filled(3, 1000)));
-      expect(frames, isEmpty);
-      frames = buffer.addBytes(_pcm16Bytes(List.filled(2, 2000)));
-      expect(frames, isEmpty);
-      frames = buffer.addBytes(_pcm16Bytes(List.filled(10, 3000)));
-      expect(frames.length, 1); // 3+2+10=15 samples -> one 8-sample frame, 7 left buffered
-      expect(frames.first.length, 8);
-      expect(frames.first[0], closeTo(1000 / 32768.0, 1e-9));
-    });
+    test(
+      'emits a frame once frameSize samples accumulate, across irregular chunks',
+      () {
+        final buffer = PcmRingBuffer(frameSize: 8);
+        var frames = buffer.addBytes(_pcm16Bytes(List.filled(3, 1000)));
+        expect(frames, isEmpty);
+        frames = buffer.addBytes(_pcm16Bytes(List.filled(2, 2000)));
+        expect(frames, isEmpty);
+        frames = buffer.addBytes(_pcm16Bytes(List.filled(10, 3000)));
+        expect(
+          frames.length,
+          1,
+        ); // 3+2+10=15 samples -> one 8-sample frame, 7 left buffered
+        expect(frames.first.length, 8);
+        expect(frames.first[0], closeTo(1000 / 32768.0, 1e-9));
+      },
+    );
 
     test('supports overlapping frames via hopSize < frameSize', () {
       final buffer = PcmRingBuffer(frameSize: 4, hopSize: 2);
@@ -37,7 +43,10 @@ void main() {
       final frames = buffer.addBytes(_pcm16Bytes(samples));
       // 10 samples, frameSize 4, hop 2 -> frames start at 0,2,4 (need 4 more for next => stop)
       expect(frames.length, 4);
-      expect(frames[1][0], closeTo(200 / 32768.0, 1e-9)); // second frame starts at sample index 2
+      expect(
+        frames[1][0],
+        closeTo(200 / 32768.0, 1e-9),
+      ); // second frame starts at sample index 2
     });
 
     test('reset clears buffered samples', () {

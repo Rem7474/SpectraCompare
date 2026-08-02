@@ -70,7 +70,8 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                                 Radio<int>(
                                   value: m.id!,
                                   groupValue: comparison.referenceId,
-                                  onChanged: (id) => comparison.setReference(id!),
+                                  onChanged: (id) =>
+                                      comparison.setReference(id!),
                                 ),
                                 const Text('Référence'),
                               ],
@@ -86,7 +87,9 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: selected.isEmpty
-                    ? const Center(child: Text('Sélectionne au moins une mesure.'))
+                    ? const Center(
+                        child: Text('Sélectionne au moins une mesure.'),
+                      )
                     : Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -104,7 +107,10 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                           ),
                           if (reference != null && selected.length > 1) ...[
                             const SizedBox(height: 8),
-                            Text('Delta vs. ${reference.displayName}', style: Theme.of(context).textTheme.titleSmall),
+                            Text(
+                              'Delta vs. ${reference.displayName}',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
                             SizedBox(
                               height: 80,
                               child: ListView(
@@ -112,10 +118,14 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                                 children: [
                                   for (final m in selected)
                                     if (m.id != reference.id)
-                                      _DeltaSummary(label: m.displayName, deltaByBand: OctaveBands.deltaVsReference(
-                                        m.frequencyResponse,
-                                        reference.frequencyResponse,
-                                      )),
+                                      _DeltaSummary(
+                                        label: m.displayName,
+                                        deltaByBand:
+                                            OctaveBands.deltaVsReference(
+                                              m.frequencyResponse,
+                                              reference.frequencyResponse,
+                                            ),
+                                      ),
                                 ],
                               ),
                             ),
@@ -146,11 +156,16 @@ class _DeltaSummary extends StatelessWidget {
       );
     }
     final avg = deltaByBand.values.reduce((a, b) => a + b) / deltaByBand.length;
-    final maxAbs = deltaByBand.values.map((v) => v.abs()).reduce((a, b) => a > b ? a : b);
+    final maxAbs = deltaByBand.values
+        .map((v) => v.abs())
+        .reduce((a, b) => a > b ? a : b);
     return Container(
       margin: const EdgeInsets.only(right: 12),
       padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade400), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

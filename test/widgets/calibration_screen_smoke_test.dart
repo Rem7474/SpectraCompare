@@ -13,7 +13,9 @@ void main() {
     sqfliteFfiInit();
   });
 
-  testWidgets('renders the "no calibration" option and an import button', (tester) async {
+  testWidgets('renders the "no calibration" option and an import button', (
+    tester,
+  ) async {
     final appDb = testAppDatabase();
     await tester.pumpWidget(
       ChangeNotifierProvider(
@@ -24,11 +26,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Calibration micro'), findsOneWidget);
-    expect(find.text('Aucune (mesures relatives, non calibrées)'), findsOneWidget);
+    expect(
+      find.text('Aucune (mesures relatives, non calibrées)'),
+      findsOneWidget,
+    );
     expect(find.byType(FloatingActionButton), findsOneWidget);
   });
 
-  testWidgets('importing valid pasted calibration text adds it to the list', (tester) async {
+  testWidgets('importing valid pasted calibration text adds it to the list', (
+    tester,
+  ) async {
     final appDb = testAppDatabase();
     await tester.pumpWidget(
       ChangeNotifierProvider(
@@ -43,7 +50,10 @@ void main() {
 
     // Two text fields in the import dialog: name (index 0) and pasted
     // calibration contents (index 1).
-    await tester.enterText(find.byType(TextField).at(1), '20 1.0\n1000 0.0\n20000 -2.0\n');
+    await tester.enterText(
+      find.byType(TextField).at(1),
+      '20 1.0\n1000 0.0\n20000 -2.0\n',
+    );
     await tester.tap(find.text('Importer'));
     await tester.pumpAndSettle();
 

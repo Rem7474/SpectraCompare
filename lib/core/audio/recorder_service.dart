@@ -15,14 +15,16 @@ class RecorderService implements Recorder {
   final rec.AudioRecorder _recorder;
   String? _currentPath;
 
-  RecorderService({rec.AudioRecorder? recorder}) : _recorder = recorder ?? rec.AudioRecorder();
+  RecorderService({rec.AudioRecorder? recorder})
+    : _recorder = recorder ?? rec.AudioRecorder();
 
   Future<bool> hasPermission() => _recorder.hasPermission();
 
   @override
   Future<void> start({required int sampleRate}) async {
     final dir = await getTemporaryDirectory();
-    final path = '${dir.path}/spectracompare_rec_${DateTime.now().microsecondsSinceEpoch}.wav';
+    final path =
+        '${dir.path}/spectracompare_rec_${DateTime.now().microsecondsSinceEpoch}.wav';
     _currentPath = path;
     await _recorder.start(
       rec.RecordConfig(
@@ -32,7 +34,9 @@ class RecorderService implements Recorder {
         // Prefer an unprocessed source where available: default mic sources
         // can silently apply AGC/noise-suppression/echo-cancellation, which
         // would corrupt frequency-response measurements.
-        androidConfig: const rec.AndroidRecordConfig(audioSource: rec.AndroidAudioSource.unprocessed),
+        androidConfig: const rec.AndroidRecordConfig(
+          audioSource: rec.AndroidAudioSource.unprocessed,
+        ),
         echoCancel: false,
         noiseSuppress: false,
         autoGain: false,

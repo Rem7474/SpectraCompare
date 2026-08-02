@@ -8,7 +8,8 @@ class PcmRingBuffer {
   final int hopSize;
   final List<double> _buffer = [];
 
-  PcmRingBuffer({required this.frameSize, int? hopSize}) : hopSize = hopSize ?? frameSize;
+  PcmRingBuffer({required this.frameSize, int? hopSize})
+    : hopSize = hopSize ?? frameSize;
 
   /// Feeds a chunk of PCM16 bytes, returning zero or more complete (possibly
   /// overlapping, if `hopSize < frameSize`) frames ready for FFT.

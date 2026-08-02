@@ -19,5 +19,6 @@ class Spl {
   /// Estimated SPL given a relative [dbFs] level and a [calibrationOffsetDb]
   /// obtained by the user (e.g. measured against a known SPL reference tone).
   /// Without calibration, pass `0` and treat the result as relative-only.
-  static double estimateSpl(double dbFs, double calibrationOffsetDb) => dbFs + calibrationOffsetDb;
+  static double estimateSpl(double dbFs, double calibrationOffsetDb) =>
+      dbFs + calibrationOffsetDb;
 }
