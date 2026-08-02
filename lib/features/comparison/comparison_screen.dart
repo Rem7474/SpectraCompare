@@ -57,28 +57,27 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
           children: [
             Expanded(
               flex: 2,
-              child: ListView(
-                children: [
-                  for (final m in comparison.available)
-                    CheckboxListTile(
-                      value: comparison.selectedIds.contains(m.id),
-                      onChanged: (_) => comparison.toggleSelected(m.id!),
-                      title: Text(m.displayName),
-                      subtitle: comparison.selectedIds.contains(m.id)
-                          ? Row(
-                              children: [
-                                Radio<int>(
-                                  value: m.id!,
-                                  groupValue: comparison.referenceId,
-                                  onChanged: (id) =>
-                                      comparison.setReference(id!),
-                                ),
-                                const Text('Référence'),
-                              ],
-                            )
-                          : null,
-                    ),
-                ],
+              child: RadioGroup<int>(
+                groupValue: comparison.referenceId,
+                onChanged: (id) => comparison.setReference(id!),
+                child: ListView(
+                  children: [
+                    for (final m in comparison.available)
+                      CheckboxListTile(
+                        value: comparison.selectedIds.contains(m.id),
+                        onChanged: (_) => comparison.toggleSelected(m.id!),
+                        title: Text(m.displayName),
+                        subtitle: comparison.selectedIds.contains(m.id)
+                            ? Row(
+                                children: [
+                                  Radio<int>(value: m.id!),
+                                  const Text('Référence'),
+                                ],
+                              )
+                            : null,
+                      ),
+                  ],
+                ),
               ),
             ),
             const Divider(height: 1),

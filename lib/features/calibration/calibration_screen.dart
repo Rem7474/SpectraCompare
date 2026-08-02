@@ -83,42 +83,42 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            RadioListTile<CalibrationCurve?>(
-              value: null,
-              groupValue: calibration.selected,
-              onChanged: (_) => calibration.select(null),
-              title: const Text('Aucune (mesures relatives, non calibrées)'),
-            ),
-            if (calibration.errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  calibration.errorMessage!,
-                  style: const TextStyle(color: Colors.red),
+        child: RadioGroup<CalibrationCurve?>(
+          groupValue: calibration.selected,
+          onChanged: (value) => calibration.select(value),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const RadioListTile<CalibrationCurve?>(
+                value: null,
+                title: Text('Aucune (mesures relatives, non calibrées)'),
+              ),
+              if (calibration.errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Text(
+                    calibration.errorMessage!,
+                    style: const TextStyle(color: Colors.red),
+                  ),
+                ),
+              Expanded(
+                child: ListView(
+                  children: [
+                    for (final curve in calibration.curves)
+                      RadioListTile<CalibrationCurve?>(
+                        value: curve,
+                        title: Text(curve.name),
+                        subtitle: Text('${curve.points.length} points'),
+                        secondary: IconButton(
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () => calibration.delete(curve.id!),
+                        ),
+                      ),
+                  ],
                 ),
               ),
-            Expanded(
-              child: ListView(
-                children: [
-                  for (final curve in calibration.curves)
-                    RadioListTile<CalibrationCurve?>(
-                      value: curve,
-                      groupValue: calibration.selected,
-                      onChanged: (_) => calibration.select(curve),
-                      title: Text(curve.name),
-                      subtitle: Text('${curve.points.length} points'),
-                      secondary: IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => calibration.delete(curve.id!),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
