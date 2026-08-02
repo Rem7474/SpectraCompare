@@ -24,7 +24,7 @@ dependencies:
   fftea: ^1.5.0+1
 
   # Charts (spectrum / comparison overlays; spectrogram uses a CustomPainter)
-  fl_chart: ^0.69.2
+  fl_chart: ^1.2.0
 
   # Local storage
   sqflite: ^2.4.1
