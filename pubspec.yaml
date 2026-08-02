@@ -1,0 +1,53 @@
+name: spectra_compare
+description: "Analyseur spectral mobile avec générateur de signaux de test intégré, pour enregistrer, analyser et comparer des enceintes."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # State management
+  provider: ^6.1.2
+
+  # Audio playback / recording
+  just_audio: ^0.9.42
+  record: ^5.2.0
+  audio_session: ^0.1.21
+
+  # DSP
+  fftea: ^1.5.0+1
+
+  # Charts (spectrum / comparison overlays; spectrogram uses a CustomPainter)
+  fl_chart: ^0.69.2
+
+  # Local storage
+  sqflite: ^2.4.1
+  path: ^1.9.0
+  path_provider: ^2.1.5
+
+  # Export / sharing
+  csv: ^6.0.0
+  share_plus: ^10.1.4
+
+  # Permissions
+  permission_handler: ^11.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Host-runnable (no device) sqlite backend for storage tests
+  sqflite_common_ffi: ^2.3.4+4
+
+  # Fakes/mocks for controller and orchestration tests
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
