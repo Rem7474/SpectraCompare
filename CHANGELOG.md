@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.0.7] - 2026-08-02
+
+### Corrigé
+- Revert de `audioManagerMode: modeInCommunication` (ajouté en 0.0.5) : sur un Pixel, le test micro rapide a montré que le niveau restait quasi nul même en enregistrant via le haut-parleur du téléphone (donc sans Bluetooth) — ce mode "appel" déclenche le pipeline d'annulation d'écho le plus agressif de l'appareil, justement optimisé pour supprimer ce cas précis. Retour à `modeNormal` (défaut du plugin).
+
 ## [0.0.6] - 2026-08-02
 
 ### Ajouté
