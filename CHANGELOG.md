@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.0.5] - 2026-08-02
+
+### Corrigé
+- Micro capturant un niveau quasi nul (-81dBFS) spécifiquement pendant une mesure (lecture + enregistrement simultanés), alors que l'onglet Analyseur (enregistrement seul) captait un niveau normal : `AndroidAudioSource.unprocessed` n'est pas garanti sur tous les appareils et pouvait échouer silencieusement — remplacé par `mic` (universellement supporté). Passage aussi en `audioManagerMode: modeInCommunication`, le réglage documenté par le plugin pour les problèmes d'AEC/routage en cas d'enregistrement et de lecture concurrents.
+
 ## [0.0.4] - 2026-08-02
 
 ### Modifié
