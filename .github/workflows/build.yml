@@ -60,7 +60,7 @@ jobs:
         run: flutter pub get
 
       - name: Build iOS (simulator, no codesign)
-        run: flutter build ios --release --no-codesign --simulator
+        run: flutter build ios --debug --no-codesign --simulator
 
   release:
     name: Publish GitHub Release
