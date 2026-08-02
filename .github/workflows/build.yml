@@ -29,7 +29,27 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build APK (release, debug-signed)
+      - name: Configure release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
+            KEYSTORE_PATH="$GITHUB_WORKSPACE/android/app/release.keystore"
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$KEYSTORE_PATH"
+            cat > "$GITHUB_WORKSPACE/android/key.properties" <<PROPS
+          storePassword=$ANDROID_KEYSTORE_PASSWORD
+          keyPassword=$ANDROID_KEY_PASSWORD
+          keyAlias=$ANDROID_KEY_ALIAS
+          storeFile=$KEYSTORE_PATH
+          PROPS
+          else
+            echo "No release keystore secret configured — falling back to debug signing (see android/app/build.gradle.kts)."
+          fi
+
+      - name: Build APK (release)
         run: flutter build apk --release
 
       - name: Rename artifact with version

@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Release signing (see android/key.properties.example) — never commit the
+# real keystore or its credentials.
+/android/key.properties
+*.keystore
+*.jks
