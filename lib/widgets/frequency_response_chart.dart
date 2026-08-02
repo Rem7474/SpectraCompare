@@ -98,6 +98,22 @@ class FrequencyResponseChart extends StatelessWidget {
               lineBarsData: bars,
               gridData: const FlGridData(show: true),
               borderData: FlBorderData(show: true),
+              lineTouchData: LineTouchData(
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipColor: (_) => Colors.black87,
+                  getTooltipItems: (touchedSpots) => touchedSpots.map((spot) {
+                    final freq = _fromLog10(spot.x);
+                    return LineTooltipItem(
+                      '${_formatFreq(freq)}Hz: ${spot.y.toStringAsFixed(1)}dB',
+                      const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
               titlesData: FlTitlesData(
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
