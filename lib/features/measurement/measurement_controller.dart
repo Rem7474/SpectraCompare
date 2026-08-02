@@ -28,6 +28,11 @@ enum MeasurementStatus {
 /// signal type, applies an optional mic calibration curve, and can persist
 /// the result to the measurement library.
 class MeasurementController extends ChangeNotifier {
+  /// Below this cross-correlation confidence (see `CorrelationResult`), the
+  /// calibration chirp match is too unreliable to trust the resulting sync
+  /// offset — surface an error instead of analyzing a garbage/empty segment.
+  static const double minSyncConfidence = 0.3;
+
   final MeasurementDao measurementDao;
   final int sampleRate;
 
@@ -78,6 +83,19 @@ class MeasurementController extends ChangeNotifier {
       );
       final result = await session.run(signalConfig);
       lastResult = result;
+
+      if (result.mainSignalSegment.isEmpty ||
+          result.confidence < minSyncConfidence) {
+        errorMessage =
+            'Chirp de calibration non détecté de façon fiable '
+            '(confiance: ${result.confidence.toStringAsFixed(2)}). '
+            'Latence de sortie audio trop importante ou signal trop faible — '
+            'réessaie, si possible en évitant une sortie Bluetooth ou en '
+            'augmentant le volume.';
+        status = MeasurementStatus.error;
+        notifyListeners();
+        return;
+      }
 
       status = MeasurementStatus.analyzing;
       notifyListeners();

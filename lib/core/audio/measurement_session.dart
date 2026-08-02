@@ -71,7 +71,13 @@ class MeasurementSession {
     this.prerollSilence = const Duration(milliseconds: 500),
     this.warmUpDelay = const Duration(milliseconds: 400),
     this.gapSilence = const Duration(milliseconds: 200),
-    this.tailSilence = const Duration(milliseconds: 800),
+    // Bluetooth output latency (codec buffering, connection ramp-up) is not
+    // reflected in `Player.play()`'s completion signal (see README
+    // "Synchronisation et gestion de la latence" — no platform exposes it
+    // reliably). This margin has to absorb it, otherwise the recorder can
+    // stop before the tail of the signal has actually been rendered
+    // acoustically, truncating (or emptying) the captured segment.
+    this.tailSilence = const Duration(milliseconds: 1500),
   });
 
   int _samplesFor(Duration d) =>
@@ -124,8 +130,20 @@ class MeasurementSession {
     // before the chirp is emitted (mic warm-up latency is device-dependent
     // and otherwise unbounded).
     await Future.delayed(warmUpDelay);
-    await player.play(wavBytes);
-    await Future.delayed(tailSilence);
+    // Don't trust `player.play()`'s completion alone to know when it's safe
+    // to stop recording: on some routes (observed on Bluetooth) the plugin
+    // can report completion before the audio has actually finished playing
+    // out, which would truncate — or entirely empty — the captured segment.
+    // Always wait at least the combined WAV's own nominal duration plus
+    // `tailSilence`, regardless of how fast `player.play()` resolves.
+    final minPlaybackWait =
+        Duration(
+          microseconds:
+              (combined.length * Duration.microsecondsPerSecond / sampleRate)
+                  .round(),
+        ) +
+        tailSilence;
+    await Future.wait([player.play(wavBytes), Future.delayed(minPlaybackWait)]);
     final recording = await recorder.stop();
 
     final correlation = CrossCorrelation.findOffset(chirp, recording.samples);
