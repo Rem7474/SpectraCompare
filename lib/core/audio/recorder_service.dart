@@ -31,19 +31,21 @@ class RecorderService implements Recorder {
         encoder: rec.AudioEncoder.wav,
         sampleRate: sampleRate,
         numChannels: 1,
-        // Prefer an unprocessed source where available: default mic sources
-        // can silently apply AGC/noise-suppression/echo-cancellation, which
-        // would corrupt frequency-response measurements.
         androidConfig: const rec.AndroidRecordConfig(
-          audioSource: rec.AndroidAudioSource.unprocessed,
+          // `unprocessed` (AudioSource.UNPROCESSED, API 24+) is only
+          // guaranteed to exist on devices declaring FEATURE_AUDIO_PRO;
+          // on unsupported hardware it can silently capture near-total
+          // silence instead of throwing. `mic` is universally supported and,
+          // combined with the echoCancel/noiseSuppress/autoGain flags below
+          // (applied via AudioEffect independently of the source), gives the
+          // same "don't process the signal" intent far more reliably.
+          audioSource: rec.AndroidAudioSource.mic,
           // `record` defaults this to true, which makes it actively try to
           // open a Bluetooth SCO connection for the mic input whenever one
           // is available. SCO routes capture through the *Bluetooth
           // device's* mic (meant for call headsets) instead of the phone's
           // own mic, and fights with the A2DP route `just_audio` is using
-          // for playback — this alone can make the calibration chirp
-          // essentially unrecoverable when measuring through a Bluetooth
-          // speaker. We always want the phone's own mic, regardless of
+          // for playback. We always want the phone's own mic, regardless of
           // where playback is routed.
           manageBluetooth: false,
         ),
