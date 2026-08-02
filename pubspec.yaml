@@ -16,7 +16,7 @@ dependencies:
   provider: ^6.1.2
 
   # Audio playback / recording
-  just_audio: ^0.9.42
+  just_audio: ^0.10.6
   record: ^7.0.0
   audio_session: ^0.1.21
 
