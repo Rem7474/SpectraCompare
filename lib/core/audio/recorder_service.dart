@@ -48,6 +48,17 @@ class RecorderService implements Recorder {
           // for playback. We always want the phone's own mic, regardless of
           // where playback is routed.
           manageBluetooth: false,
+          // The live Analyzer tab (record-only, no concurrent playback)
+          // captures fine on the reported device, but a measurement — which
+          // records *while* just_audio is simultaneously playing — captures
+          // near-total silence. `record` and `just_audio` each manage the
+          // native audio session independently; `modeInCommunication` is
+          // the plugin's documented knob for concurrent record+playback
+          // AEC/routing issues on affected devices. Trade-off: some devices
+          // apply telephony-style (narrowband) processing in this mode,
+          // which could clip the measured bandwidth — worth revisiting if
+          // that turns out to be the case, but no capture at all is worse.
+          audioManagerMode: rec.AudioManagerMode.modeInCommunication,
         ),
         // Mirror the same "phone mic regardless of BT output" intent on iOS:
         // default `allowBluetooth` enables Bluetooth Hands-Free routing,
