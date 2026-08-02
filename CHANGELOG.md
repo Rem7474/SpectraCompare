@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.0.3] - 2026-08-02
+
+### Corrigé
+- Cause probable des mesures vides en sortie Bluetooth : le plugin d'enregistrement tentait par défaut d'ouvrir une connexion Bluetooth SCO pour le micro, routant la capture via le micro de l'appareil Bluetooth au lieu de celui du téléphone, et entrant en conflit avec la lecture A2DP. Le micro du téléphone est maintenant toujours utilisé, quelle que soit la sortie audio.
+- Les APK de release sont maintenant signés avec une clé stable dédiée au lieu de la clé debug (qui changeait à chaque build CI) — les mises à jour s'installent désormais correctement par-dessus une version précédente. **Note** : si tu avais installé v0.0.1 ou v0.0.2, une désinstallation manuelle unique reste nécessaire pour passer à v0.0.3 ; les releases suivantes s'installeront normalement en mise à jour.
+
 ## [0.0.2] - 2026-08-02
 
 ### Corrigé
