@@ -36,6 +36,25 @@ class RecorderService implements Recorder {
         // would corrupt frequency-response measurements.
         androidConfig: const rec.AndroidRecordConfig(
           audioSource: rec.AndroidAudioSource.unprocessed,
+          // `record` defaults this to true, which makes it actively try to
+          // open a Bluetooth SCO connection for the mic input whenever one
+          // is available. SCO routes capture through the *Bluetooth
+          // device's* mic (meant for call headsets) instead of the phone's
+          // own mic, and fights with the A2DP route `just_audio` is using
+          // for playback — this alone can make the calibration chirp
+          // essentially unrecoverable when measuring through a Bluetooth
+          // speaker. We always want the phone's own mic, regardless of
+          // where playback is routed.
+          manageBluetooth: false,
+        ),
+        // Mirror the same "phone mic regardless of BT output" intent on iOS:
+        // default `allowBluetooth` enables Bluetooth Hands-Free routing,
+        // which has the same SCO-vs-A2DP conflict as Android above.
+        iosConfig: const rec.IosRecordConfig(
+          categoryOptions: [
+            rec.IosAudioCategoryOption.defaultToSpeaker,
+            rec.IosAudioCategoryOption.allowBluetoothA2DP,
+          ],
         ),
         echoCancel: false,
         noiseSuppress: false,

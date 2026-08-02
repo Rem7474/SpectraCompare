@@ -12,8 +12,13 @@ class AudioSessionSetup {
     await session.configure(
       AudioSessionConfiguration(
         avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+        // `allowBluetooth` (Hands-Free Profile) would let iOS route mic
+        // capture through a connected Bluetooth device's own mic instead of
+        // the phone's — the same SCO-vs-A2DP conflict as on Android (see
+        // `RecorderService`). `allowBluetoothA2DP` keeps high-quality
+        // Bluetooth *output* (speakers) available without opting into that.
         avAudioSessionCategoryOptions:
-            AVAudioSessionCategoryOptions.allowBluetooth |
+            AVAudioSessionCategoryOptions.allowBluetoothA2dp |
             AVAudioSessionCategoryOptions.defaultToSpeaker,
         // `measurement` disables iOS's AGC/echo-cancellation/noise-suppression,
         // which would otherwise corrupt frequency-response measurements.
