@@ -2,6 +2,12 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.0.4] - 2026-08-02
+
+### Modifié
+- Simplification majeure de la synchronisation lecture/enregistrement : suppression du chirp de calibration et de la corrélation croisée, qui restaient peu fiables (notamment en Bluetooth) malgré plusieurs correctifs. Remplacés par une fenêtre d'analyse large centrée sur la position attendue du signal — la déconvolution ESS du sweep se localise déjà elle-même dans cette fenêtre, et les autres méthodes d'analyse (Welch, FFT) ne nécessitent pas d'alignement précis.
+- Le message d'erreur en cas d'échec de mesure se base maintenant sur le niveau RMS réellement capté plutôt que sur une confiance de corrélation.
+
 ## [0.0.3] - 2026-08-02
 
 ### Corrigé

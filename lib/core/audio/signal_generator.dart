@@ -145,22 +145,6 @@ class SignalGenerator {
     return _applyEdgeFade(out, sampleRate, fadeMs: 5);
   }
 
-  /// The signal embedded at the start of every measurement to determine the
-  /// real playback→recording latency via cross-correlation (default sync
-  /// method regardless of output route — see README).
-  static Float64List calibrationChirp({
-    int sampleRate = 44100,
-    double durationS = 0.15,
-  }) {
-    return sineSweep(
-      f0: 200,
-      f1: 6000,
-      durationS: durationS,
-      sampleRate: sampleRate,
-      logarithmic: true,
-    );
-  }
-
   static Float64List applyLevelDbfs(Float64List samples, double dBFS) {
     final gain = math.pow(10, dBFS / 20).toDouble();
     final out = Float64List(samples.length);

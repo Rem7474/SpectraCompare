@@ -68,12 +68,6 @@ class MeasurementDetailScreen extends StatelessWidget {
               ),
               _InfoRow('Niveau', '${measurement.outputLevelDbfs.round()}dBFS'),
               _InfoRow('Signal', measurement.signalConfig.type.name),
-              _InfoRow(
-                'Confiance sync',
-                measurement.correlationConfidence != null
-                    ? '${(measurement.correlationConfidence! * 100).clamp(0, 100).toStringAsFixed(0)}%'
-                    : '—',
-              ),
               _InfoRow('Date', measurement.createdAt.toString()),
               if (measurement.tags.isNotEmpty)
                 Padding(

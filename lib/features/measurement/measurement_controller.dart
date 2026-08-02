@@ -7,6 +7,7 @@ import '../../core/audio/signal_generator.dart';
 import '../../core/dsp/deconvolution.dart';
 import '../../core/dsp/fft_utils.dart';
 import '../../core/dsp/octave_bands.dart';
+import '../../core/dsp/spl.dart';
 import '../../core/dsp/welch.dart';
 import '../../core/models/calibration_curve.dart';
 import '../../core/models/frequency_response.dart';
@@ -28,10 +29,10 @@ enum MeasurementStatus {
 /// signal type, applies an optional mic calibration curve, and can persist
 /// the result to the measurement library.
 class MeasurementController extends ChangeNotifier {
-  /// Below this cross-correlation confidence (see `CorrelationResult`), the
-  /// calibration chirp match is too unreliable to trust the resulting sync
-  /// offset — surface an error instead of analyzing a garbage/empty segment.
-  static const double minSyncConfidence = 0.3;
+  /// Below this recorded RMS level, treat the measurement as having captured
+  /// no real signal at all (mic muted/blocked, permission silently denied,
+  /// output essentially silent) rather than analyzing near-pure silence.
+  static const double minSignalLevelDbFs = -45.0;
 
   final MeasurementDao measurementDao;
   final int sampleRate;
@@ -84,14 +85,13 @@ class MeasurementController extends ChangeNotifier {
       final result = await session.run(signalConfig);
       lastResult = result;
 
-      if (result.mainSignalSegment.isEmpty ||
-          result.confidence < minSyncConfidence) {
+      final levelDbFs = Spl.rmsDbFs(result.mainSignalSegment);
+      if (result.mainSignalSegment.isEmpty || levelDbFs < minSignalLevelDbFs) {
         errorMessage =
-            'Chirp de calibration non détecté de façon fiable '
-            '(confiance: ${result.confidence.toStringAsFixed(2)}). '
-            'Latence de sortie audio trop importante ou signal trop faible — '
-            'réessaie, si possible en évitant une sortie Bluetooth ou en '
-            'augmentant le volume.';
+            'Aucun signal significatif capté '
+            '(niveau: ${levelDbFs.isFinite ? '${levelDbFs.toStringAsFixed(0)}dBFS' : 'silence'}). '
+            'Vérifie la permission micro, que le micro n\'est pas obstrué, '
+            'et le volume de sortie.';
         status = MeasurementStatus.error;
         notifyListeners();
         return;
@@ -172,8 +172,6 @@ class MeasurementController extends ChangeNotifier {
       outputLevelDbfs: config.levelDbfs,
       signalConfig: config,
       sampleRate: sampleRate,
-      offsetSamples: result.offsetSamples,
-      correlationConfidence: result.confidence,
       frequencyResponse: response,
       calibrationCurveId: calibrationCurve?.id,
       tags: tags,

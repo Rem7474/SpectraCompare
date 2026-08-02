@@ -20,7 +20,6 @@ C'est la pierre angulaire de l'app : sans signal de test contrôlé et reproduct
 - **Burst** — impulsions courtes pour tester la réactivité transitoire des enceintes [mwm](https://mwm.ai/apps/audio-tone-generator-plus/1619042820)
 - **Ton pur ajustable** pour repérer résonances ou trous dans le spectre [play.google](https://play.google.com/store/apps/details?id=com.simonj.tonegenerator&hl=en)
 - **Presets** enregistrement rapide : "Sweep standard", "Calibration pink noise", "Test rattle/burst"
-- **Chirp de calibration** injecté automatiquement en tête de chaque mesure pour la synchronisation lecture ↔ enregistrement (voir plus bas)
 
 ⚠️ Le signal doit toujours être joué à un niveau de sortie contrôlé (ex: -20 dBFS par défaut) pour protéger les enceintes et permettre des comparaisons à niveau constant. [sonavyx](https://sonavyx.com/en/tools/noise-generator)
 
@@ -36,16 +35,16 @@ C'est la pierre angulaire de l'app : sans signal de test contrôlé et reproduct
 
 ## ⏱️ Synchronisation et gestion de la latence
 
-La mesure n'a de sens que si l'app connaît précisément le décalage temporel entre l'instant où le signal est réellement émis par le haut-parleur et l'instant où il est capté par le micro. Ce décalage (latence round-trip) varie selon l'appareil, l'OS et la sortie audio utilisée (interne, jack, Bluetooth), et aucune plateforme n'expose cette latence de façon fiable dans tous les cas — en particulier en Bluetooth, où les valeurs remontées par les API systèmes sont souvent nulles ou incorrectes. [musevv](https://www.musevv.com/blog/how-i-solved-bluetooth-audio-latency-on-ios.html)
+Aucune plateforme n'expose de façon fiable la latence réelle entre l'instant où un signal est émis et l'instant où il est capté par le micro — c'est particulièrement vrai en sortie Bluetooth, où les valeurs remontées par les API système sont souvent nulles ou incorrectes. [musevv](https://www.musevv.com/blog/how-i-solved-bluetooth-audio-latency-on-ios.html)
 
-SpectraCompare utilise donc une **auto-calibration par corrélation croisée**, comme méthode par défaut, quelle que soit la sortie audio :
+Une première version tentait de mesurer ce décalage précisément via un chirp de calibration injecté en tête de chaque mesure, retrouvé dans l'enregistrement par corrélation croisée. En pratique, cette étape s'est révélée être le point le plus fragile de toute la chaîne — particulièrement en Bluetooth, expérience à l'appui. L'app s'appuie maintenant sur une approche plus simple et plus robuste, qui n'a en réalité jamais eu besoin d'un décalage précis :
 
-1. Un fichier audio combiné est construit : `[silence][chirp de calibration][gap][signal de test][tail]`
-2. L'enregistrement micro démarre, puis ce fichier est joué en une seule fois
-3. Une corrélation croisée (FFT) entre le chirp connu et l'enregistrement capté détermine le décalage réel en échantillons
-4. Ce décalage sert uniquement à découper le bon segment pour l'analyse — l'audio brut n'est jamais modifié
+1. Le signal de test est joué avec une marge de silence avant et après (`[preroll][signal][tail]`), pendant que le micro enregistre
+2. L'analyse porte sur une fenêtre large, centrée sur la position *attendue* du signal et généreusement élargie (quelques secondes) pour absorber une latence de sortie inconnue — sans jamais tenter de la détecter précisément
+3. Pour le sweep, la déconvolution ESS/Farina agit elle-même comme un filtre adapté : le pic de la réponse impulsionnelle obtenue indique où se trouve le signal dans la fenêtre, quel que soit le décalage réel
+4. Pour le bruit rose/blanc et les tons/burst, l'analyse (méthode de Welch, FFT simple) ne nécessite pas d'alignement précis — une fenêtre qui contient largement le signal suffit
 
-Cette approche ne dépend d'aucune API de timestamp natif (`AAudioStream_getTimestamp`, `mach_timebase_info`, etc.) : elle fonctionne à l'identique sur Android, iOS, sortie interne, jack ou Bluetooth.
+Un contrôle de niveau (RMS) sur le segment analysé permet quand même de détecter le cas où rien n'a été capté du tout (permission micro, micro obstrué, volume de sortie nul) et de le signaler clairement plutôt que d'afficher un résultat vide ou aberrant.
 
 ## 🏗️ Stack technique
 
@@ -56,13 +55,13 @@ Cette approche ne dépend d'aucune API de timestamp natif (`AAudioStream_getTime
 | Lecture audio | `just_audio` |
 | Capture micro | `record` |
 | Session audio partagée (Android/iOS) | `audio_session` (catégorie `playAndRecord`, mode `measurement` sur iOS pour désactiver AGC/echo-cancellation) |
-| DSP (FFT, déconvolution, corrélation) | `fftea` (pur Dart) + implémentation maison (ESS/Farina, Welch, bandes 1/3 octave) |
+| DSP (FFT, déconvolution) | `fftea` (pur Dart) + implémentation maison (ESS/Farina, Welch, bandes 1/3 octave) |
 | Graphiques | `fl_chart` (spectre/comparaison), `CustomPainter` maison (spectrogramme) |
 | Stockage local | `sqflite` |
 | Export/Partage | `csv`, `share_plus` |
 | Permissions | `permission_handler` |
 
-> **Choix d'architecture** : la synchronisation lecture/enregistrement repose entièrement sur le chirp de calibration + corrélation croisée (ci-dessus), qui est déjà la méthode universelle recommandée par le cahier des charges initial. Cela permet de s'appuyer sur des plugins Flutter matures plutôt que sur du code natif Kotlin/Swift par plateforme, sans rien perdre en fiabilité de synchronisation.
+> **Choix d'architecture** : pas de code natif Kotlin/Swift pour l'audio — des plugins Flutter matures (`just_audio`/`record`/`audio_session`) suffisent, combinés à l'approche de fenêtre large décrite ci-dessus qui ne dépend d'aucune API de timestamp natif ni d'une détection précise du décalage lecture/enregistrement.
 
 ## 🚀 Installation
 
@@ -84,7 +83,7 @@ flutter run
 
 1. Choisir un preset de signal de test (sweep, pink noise, burst...)
 2. Placer le téléphone à distance fixe de l'enceinte (ex: 1m, hauteur oreille)
-3. Lancer la mesure : un chirp de calibration est joué et capté automatiquement pour compenser la latence, puis le signal de test démarre en synchro
+3. Lancer la mesure : le signal de test est joué et enregistré automatiquement, avec les marges nécessaires pour absorber la latence de la sortie audio utilisée
 4. Sauvegarder la mesure avec un tag (nom enceinte, conditions, signal utilisé)
 5. Répéter pour chaque enceinte à comparer, avec le même signal et la même distance
 6. Ouvrir l'écran **Comparaison** pour superposer les courbes
@@ -95,7 +94,7 @@ flutter run
 lib/
   core/
     audio/      signal generator, WAV codec, session recorder/player, mesure orchestrée
-    dsp/        FFT, déconvolution ESS, corrélation croisée, Welch, bandes 1/3 octave, SPL
+    dsp/        FFT, déconvolution ESS, Welch, bandes 1/3 octave, SPL
     models/     SignalConfig, FrequencyResponse, CalibrationCurve, Measurement
     storage/    base sqflite (DAO mesures/calibrations), export CSV/JSON, parsing fichiers calibration
   features/
@@ -125,13 +124,13 @@ GitHub Actions exécute automatiquement cette même suite sur chaque push/PR ver
 ## ⚠️ Limites connues
 
 - Les micros de smartphone ne sont pas calibrés par défaut : les mesures sont donc **relatives**, utiles pour comparer plusieurs enceintes entre elles dans les mêmes conditions, mais pas pour une mesure absolue sans micro externe calibré (un import de courbe de calibration REW/miniDSP est possible pour corriger ce biais).
-- Le fait de contrôler nativement le signal de test et de compenser la latence par corrélation limite fortement les biais liés à des sources ou routages audio non maîtrisés, mais n'élimine pas le bruit ambiant : mesurer dans un environnement calme reste recommandé.
+- Le contrôle du signal de test et les marges généreuses autour de sa position attendue limitent les biais liés aux routages audio non maîtrisés, mais n'éliminent pas le bruit ambiant : mesurer dans un environnement calme reste recommandé.
 - La suite de tests couvre le DSP, le stockage et les écrans en environnement headless ; les scénarios de lecture/enregistrement réels (bruit ambiant, Bluetooth, matériel varié) nécessitent une validation manuelle sur appareil.
 
 ## 🗺️ Roadmap
 
 - [x] Générateur de signaux (sweep, pink/white noise, burst, ton pur) — v1
-- [x] Synchronisation lecture/enregistrement par chirp de calibration — v1
+- [x] Synchronisation lecture/enregistrement robuste sans détection de latence (fenêtre large + déconvolution auto-localisante) — v1
 - [x] Analyse FFT temps réel + spectrogramme — v1
 - [x] Déconvolution ESS (sweep) et méthode de Welch (bruit) — v1
 - [x] Comparaison multi-enceintes par bandes 1/3 octave — v1

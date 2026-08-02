@@ -221,7 +221,6 @@ class _ResultViewState extends State<_ResultView> {
     if (measurement.status != MeasurementStatus.done || response == null) {
       return const SizedBox.shrink();
     }
-    final result = measurement.lastResult!;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -229,12 +228,6 @@ class _ResultViewState extends State<_ResultView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Résultat', style: Theme.of(context).textTheme.titleMedium),
-            Text(
-              'Confiance de synchronisation: ${(result.confidence * 100).clamp(0, 100).toStringAsFixed(0)}%',
-              style: TextStyle(
-                color: result.confidence > 0.5 ? Colors.green : Colors.orange,
-              ),
-            ),
             const SizedBox(height: 8),
             SizedBox(
               height: 240,
