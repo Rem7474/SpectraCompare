@@ -10,6 +10,9 @@ concurrency:
   group: build-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   build-android:
     name: Build Android APK
@@ -29,10 +32,16 @@ jobs:
       - name: Build APK (release, debug-signed)
         run: flutter build apk --release
 
+      - name: Rename artifact with version
+        run: |
+          mkdir -p dist
+          cp build/app/outputs/flutter-apk/app-release.apk \
+            "dist/spectra-compare-${GITHUB_REF_NAME}.apk"
+
       - uses: actions/upload-artifact@v4
         with:
           name: spectra-compare-android
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: dist/*.apk
           retention-days: 30
 
   build-ios:
@@ -52,3 +61,21 @@ jobs:
 
       - name: Build iOS (no codesign)
         run: flutter build ios --release --no-codesign
+
+  release:
+    name: Publish GitHub Release
+    needs: [build-android, build-ios]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: spectra-compare-android
+          path: dist
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: false
