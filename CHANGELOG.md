@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.0.6] - 2026-08-02
+
+### Ajouté
+- Carte "Test micro rapide" sur l'onglet Calibration : joue un ton court et fort à travers exactement le même pipeline d'enregistrement/lecture qu'une mesure, et affiche immédiatement le niveau RMS capté (en dBFS, avec un code couleur). Permet de comparer rapidement l'effet de différents réglages audio (Bluetooth, position du téléphone...) sans attendre une mesure complète.
+
 ## [0.0.5] - 2026-08-02
 
 ### Corrigé
