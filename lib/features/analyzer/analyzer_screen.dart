@@ -96,7 +96,10 @@ class AnalyzerScreen extends StatelessWidget {
                   ),
                   if (analyzer.isRunning)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
                       decoration: BoxDecoration(
                         color: analyzer.isPaused
                             ? Colors.orange.withAlpha(40)
@@ -108,7 +111,9 @@ class AnalyzerScreen extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: analyzer.isPaused ? Colors.orange : Colors.green,
+                          color: analyzer.isPaused
+                              ? Colors.orange
+                              : Colors.green,
                         ),
                       ),
                     ),
@@ -125,9 +130,18 @@ class AnalyzerScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text('20k', style: TextStyle(fontSize: 8, color: Colors.grey)),
-                          Text('1k', style: TextStyle(fontSize: 8, color: Colors.grey)),
-                          Text('20', style: TextStyle(fontSize: 8, color: Colors.grey)),
+                          Text(
+                            '20k',
+                            style: TextStyle(fontSize: 8, color: Colors.grey),
+                          ),
+                          Text(
+                            '1k',
+                            style: TextStyle(fontSize: 8, color: Colors.grey),
+                          ),
+                          Text(
+                            '20',
+                            style: TextStyle(fontSize: 8, color: Colors.grey),
+                          ),
                         ],
                       ),
                     ),
@@ -167,15 +181,21 @@ class AnalyzerScreen extends StatelessWidget {
                     flex: 2,
                     child: FilledButton.icon(
                       style: FilledButton.styleFrom(
-                        backgroundColor: analyzer.isRunning ? Colors.red.shade700 : null,
+                        backgroundColor: analyzer.isRunning
+                            ? Colors.red.shade700
+                            : null,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
-                      icon: Icon(analyzer.isRunning ? Icons.stop : Icons.play_arrow),
+                      icon: Icon(
+                        analyzer.isRunning ? Icons.stop : Icons.play_arrow,
+                      ),
                       label: Text(
                         analyzer.isRunning ? 'Arrêter' : 'Démarrer l\'analyse',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      onPressed: () => analyzer.isRunning ? analyzer.stop() : analyzer.start(),
+                      onPressed: () => analyzer.isRunning
+                          ? analyzer.stop()
+                          : analyzer.start(),
                     ),
                   ),
                   if (analyzer.isRunning) ...[
@@ -185,7 +205,9 @@ class AnalyzerScreen extends StatelessWidget {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
-                        icon: Icon(analyzer.isPaused ? Icons.play_arrow : Icons.pause),
+                        icon: Icon(
+                          analyzer.isPaused ? Icons.play_arrow : Icons.pause,
+                        ),
                         label: Text(analyzer.isPaused ? 'Reprendre' : 'Figer'),
                         onPressed: analyzer.togglePause,
                       ),

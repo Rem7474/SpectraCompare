@@ -63,8 +63,9 @@ class FrequencySmoothing {
         weightedMagSum += weight * points[j].magnitudeDb;
       }
 
-      final mag =
-          weightSum > 0 ? (weightedMagSum / weightSum) : points[i].magnitudeDb;
+      final mag = weightSum > 0
+          ? (weightedMagSum / weightSum)
+          : points[i].magnitudeDb;
       smoothed.add(FrequencyResponsePoint(fCenter, mag));
     }
 

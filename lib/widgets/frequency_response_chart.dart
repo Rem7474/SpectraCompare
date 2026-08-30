@@ -79,8 +79,9 @@ class _FrequencyResponseChartState extends State<FrequencyResponseChart> {
 
   @override
   Widget build(BuildContext context) {
-    final nonEmpty =
-        widget.series.where((s) => s.response.points.isNotEmpty).toList();
+    final nonEmpty = widget.series
+        .where((s) => s.response.points.isNotEmpty)
+        .toList();
     if (nonEmpty.isEmpty) {
       return const Center(child: Text('Aucune donnée'));
     }
@@ -173,7 +174,9 @@ class _FrequencyResponseChartState extends State<FrequencyResponseChart> {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Row(
@@ -235,10 +238,8 @@ class _FrequencyResponseChartState extends State<FrequencyResponseChart> {
                     strokeWidth: 0.8,
                   );
                 },
-                getDrawingVerticalLine: (_) => FlLine(
-                  color: Colors.grey.withAlpha(50),
-                  strokeWidth: 0.8,
-                ),
+                getDrawingVerticalLine: (_) =>
+                    FlLine(color: Colors.grey.withAlpha(50), strokeWidth: 0.8),
               ),
               borderData: FlBorderData(
                 show: true,
@@ -300,4 +301,3 @@ class _FrequencyResponseChartState extends State<FrequencyResponseChart> {
     );
   }
 }
-

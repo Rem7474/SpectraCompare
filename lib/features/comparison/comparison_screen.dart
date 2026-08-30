@@ -143,9 +143,14 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                     Builder(
                       builder: (context) {
                         final m = comparison.available[i];
-                        final isSelected = comparison.selectedIds.contains(m.id);
+                        final isSelected = comparison.selectedIds.contains(
+                          m.id,
+                        );
                         final color = isSelected
-                            ? _palette[selected.indexWhere((s) => s.id == m.id) % _palette.length]
+                            ? _palette[selected.indexWhere(
+                                    (s) => s.id == m.id,
+                                  ) %
+                                  _palette.length]
                             : Colors.grey;
 
                         return CheckboxListTile(
@@ -162,13 +167,16 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                           title: Text(
                             m.displayName,
                             style: TextStyle(
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                             ),
                           ),
                           subtitle: isSelected
                               ? RadioGroup<int>(
                                   groupValue: comparison.referenceId,
-                                  onChanged: (id) => comparison.setReference(id!),
+                                  onChanged: (id) =>
+                                      comparison.setReference(id!),
                                   child: Row(
                                     children: [
                                       Radio<int>(value: m.id!),
@@ -186,7 +194,10 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
             const Divider(height: 1),
             if (selected.length > 1 && reference != null)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 6,
+                ),
                 child: SegmentedButton<bool>(
                   segments: const [
                     ButtonSegment(
@@ -201,7 +212,8 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                     ),
                   ],
                   selected: {_isDeltaMode},
-                  onSelectionChanged: (s) => setState(() => _isDeltaMode = s.first),
+                  onSelectionChanged: (s) =>
+                      setState(() => _isDeltaMode = s.first),
                 ),
               ),
             Expanded(
@@ -221,7 +233,9 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                               zeroReferenceLine: _isDeltaMode ? 0.0 : null,
                             ),
                           ),
-                          if (reference != null && selected.length > 1 && !_isDeltaMode) ...[
+                          if (reference != null &&
+                              selected.length > 1 &&
+                              !_isDeltaMode) ...[
                             const SizedBox(height: 8),
                             Text(
                               'Delta vs. ${reference.displayName}',

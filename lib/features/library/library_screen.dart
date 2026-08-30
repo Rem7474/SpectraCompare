@@ -102,7 +102,9 @@ class _LibraryScreenState extends State<LibraryScreen> {
                         prefixIcon: const Icon(Icons.search, size: 20),
                         isDense: true,
                         filled: true,
-                        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(120),
+                        fillColor: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest.withAlpha(120),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide.none,
@@ -113,35 +115,49 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   ),
                   Expanded(
                     child: filtered.isEmpty
-                        ? const Center(child: Text('Aucun résultat correspondant.'))
+                        ? const Center(
+                            child: Text('Aucun résultat correspondant.'),
+                          )
                         : ListView.separated(
                             itemCount: filtered.length,
-                            separatorBuilder: (context, index) => const Divider(height: 1),
+                            separatorBuilder: (context, index) =>
+                                const Divider(height: 1),
                             itemBuilder: (context, index) {
                               final m = filtered[index];
                               return ListTile(
                                 leading: CircleAvatar(
-                                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                                  backgroundColor: Theme.of(
+                                    context,
+                                  ).colorScheme.primaryContainer,
                                   child: Icon(
                                     Icons.graphic_eq,
-                                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
                                   ),
                                 ),
                                 title: Text(
                                   m.displayName,
-                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
                                 ),
                                 subtitle: Text(
                                   '${m.signalConfig.type.name} • ${_formatDate(m.createdAt)}',
                                   style: const TextStyle(fontSize: 12),
                                 ),
                                 trailing: IconButton(
-                                  icon: const Icon(Icons.delete_outline, color: Colors.grey),
-                                  onPressed: () => _confirmDelete(m.id!, m.displayName),
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.grey,
+                                  ),
+                                  onPressed: () =>
+                                      _confirmDelete(m.id!, m.displayName),
                                 ),
                                 onTap: () => Navigator.of(context).push(
                                   MaterialPageRoute(
-                                    builder: (_) => MeasurementDetailScreen(measurement: m),
+                                    builder: (_) =>
+                                        MeasurementDetailScreen(measurement: m),
                                   ),
                                 ),
                               );

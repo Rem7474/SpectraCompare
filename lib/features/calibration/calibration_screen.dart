@@ -196,8 +196,10 @@ class _MicTestCardState extends State<_MicTestCard> {
   }
 
   String _levelAssessment(double dbFs) {
-    if (!dbFs.isFinite || dbFs < -50) return 'Signal trop faible / Silence (Vérifier micro)';
-    if (dbFs < -35) return 'Niveau faible (Rapprocher le micro ou monter le volume)';
+    if (!dbFs.isFinite || dbFs < -50)
+      return 'Signal trop faible / Silence (Vérifier micro)';
+    if (dbFs < -35)
+      return 'Niveau faible (Rapprocher le micro ou monter le volume)';
     if (dbFs < -10) return 'Niveau optimal pour la mesure';
     if (dbFs < -2) return 'Niveau fort (Attention aux réflexions)';
     return 'Risque de saturation (Baisser le volume)';
@@ -248,7 +250,9 @@ class _MicTestCardState extends State<_MicTestCard> {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(120),
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withAlpha(120),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Column(
@@ -306,10 +310,22 @@ class _MicTestCardState extends State<_MicTestCard> {
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('-60 dB', style: TextStyle(fontSize: 9, color: Colors.grey)),
-                      Text('-30 dB', style: TextStyle(fontSize: 9, color: Colors.grey)),
-                      Text('-10 dB', style: TextStyle(fontSize: 9, color: Colors.grey)),
-                      Text('0 dB', style: TextStyle(fontSize: 9, color: Colors.grey)),
+                      Text(
+                        '-60 dB',
+                        style: TextStyle(fontSize: 9, color: Colors.grey),
+                      ),
+                      Text(
+                        '-30 dB',
+                        style: TextStyle(fontSize: 9, color: Colors.grey),
+                      ),
+                      Text(
+                        '-10 dB',
+                        style: TextStyle(fontSize: 9, color: Colors.grey),
+                      ),
+                      Text(
+                        '0 dB',
+                        style: TextStyle(fontSize: 9, color: Colors.grey),
+                      ),
                     ],
                   ),
                 ],

@@ -112,7 +112,8 @@ class AnalyzerController extends ChangeNotifier {
 
       // Update Peak Hold
       final currentPeak = peakHoldSpectrum;
-      if (currentPeak == null || currentPeak.magnitudesDb.length != spectrum.magnitudesDb.length) {
+      if (currentPeak == null ||
+          currentPeak.magnitudesDb.length != spectrum.magnitudesDb.length) {
         peakHoldSpectrum = Spectrum(
           spectrum.freqsHz,
           Float64List.fromList(spectrum.magnitudesDb),

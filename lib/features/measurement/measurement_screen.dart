@@ -221,8 +221,16 @@ class _StatusLine extends StatelessWidget {
         Colors.purple,
         Icons.analytics_outlined,
       ),
-      MeasurementPhase.done => ('Mesure terminée avec succès.', Colors.green, Icons.check_circle_outline),
-      MeasurementPhase.error => ('Erreur: ${errorMessage ?? "Inconnue"}', Colors.red, Icons.error_outline),
+      MeasurementPhase.done => (
+        'Mesure terminée avec succès.',
+        Colors.green,
+        Icons.check_circle_outline,
+      ),
+      MeasurementPhase.error => (
+        'Erreur: ${errorMessage ?? "Inconnue"}',
+        Colors.red,
+        Icons.error_outline,
+      ),
     };
 
     return Container(
