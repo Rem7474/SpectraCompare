@@ -68,7 +68,10 @@ class MeasurementDetailScreen extends StatelessWidget {
               ),
               _InfoRow('Niveau', '${measurement.outputLevelDbfs.round()}dBFS'),
               _InfoRow('Signal', measurement.signalConfig.type.name),
-              _InfoRow('Date', measurement.createdAt.toString()),
+              _InfoRow(
+                'Date',
+                '${measurement.createdAt.day.toString().padLeft(2, '0')}/${measurement.createdAt.month.toString().padLeft(2, '0')}/${measurement.createdAt.year} ${measurement.createdAt.hour.toString().padLeft(2, '0')}:${measurement.createdAt.minute.toString().padLeft(2, '0')}',
+              ),
               if (measurement.tags.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),

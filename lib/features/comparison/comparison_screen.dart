@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/dsp/octave_bands.dart';
+import '../../core/models/frequency_response.dart';
 import '../../core/storage/export_service.dart';
 import '../../widgets/frequency_response_chart.dart';
 import 'comparison_controller.dart';
@@ -24,6 +25,8 @@ class ComparisonScreen extends StatefulWidget {
 }
 
 class _ComparisonScreenState extends State<ComparisonScreen> {
+  bool _isDeltaMode = false;
+
   @override
   void initState() {
     super.initState();
@@ -32,11 +35,88 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
     });
   }
 
+  FrequencyResponse _calculateDelta(
+    FrequencyResponse target,
+    FrequencyResponse reference,
+  ) {
+    if (target.points.isEmpty || reference.points.isEmpty) {
+      return const FrequencyResponse([]);
+    }
+
+    final deltaPoints = <FrequencyResponsePoint>[];
+    for (final refPoint in reference.points) {
+      // Find closest point in target
+      var best = target.points.first;
+      var bestDist = (best.freqHz - refPoint.freqHz).abs();
+      for (final p in target.points) {
+        final dist = (p.freqHz - refPoint.freqHz).abs();
+        if (dist < bestDist) {
+          best = p;
+          bestDist = dist;
+        }
+      }
+      // If within 10% frequency tolerance, compute delta
+      if (bestDist / refPoint.freqHz < 0.15) {
+        deltaPoints.add(
+          FrequencyResponsePoint(
+            refPoint.freqHz,
+            best.magnitudeDb - refPoint.magnitudeDb,
+          ),
+        );
+      }
+    }
+    return FrequencyResponse(deltaPoints);
+  }
+
   @override
   Widget build(BuildContext context) {
     final comparison = context.watch<ComparisonController>();
     final selected = comparison.selectedMeasurements;
     final reference = comparison.reference;
+
+    final chartSeries = <FrequencyResponseSeries>[];
+    if (!_isDeltaMode || reference == null) {
+      for (int i = 0; i < selected.length; i++) {
+        chartSeries.add(
+          FrequencyResponseSeries(
+            label: selected[i].displayName,
+            response: selected[i].frequencyResponse,
+            color: _palette[i % _palette.length],
+          ),
+        );
+      }
+    } else {
+      // Delta mode: Reference is 0 dB reference line
+      chartSeries.add(
+        FrequencyResponseSeries(
+          label: '${reference.displayName} (Réf 0 dB)',
+          response: FrequencyResponse([
+            for (final p in reference.frequencyResponse.points)
+              FrequencyResponsePoint(p.freqHz, 0.0),
+          ]),
+          color: Colors.cyanAccent,
+          strokeWidth: 2.0,
+          isDashed: true,
+        ),
+      );
+
+      for (int i = 0; i < selected.length; i++) {
+        final m = selected[i];
+        if (m.id == reference.id) continue;
+        final deltaResponse = _calculateDelta(
+          m.frequencyResponse,
+          reference.frequencyResponse,
+        );
+        chartSeries.add(
+          FrequencyResponseSeries(
+            label: 'Δ ${m.displayName}',
+            response: deltaResponse,
+            color: _palette[i % _palette.length],
+            strokeWidth: 2.2,
+          ),
+        );
+      }
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -57,30 +137,73 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
           children: [
             Expanded(
               flex: 2,
-              child: RadioGroup<int>(
-                groupValue: comparison.referenceId,
-                onChanged: (id) => comparison.setReference(id!),
-                child: ListView(
-                  children: [
-                    for (final m in comparison.available)
-                      CheckboxListTile(
-                        value: comparison.selectedIds.contains(m.id),
-                        onChanged: (_) => comparison.toggleSelected(m.id!),
-                        title: Text(m.displayName),
-                        subtitle: comparison.selectedIds.contains(m.id)
-                            ? Row(
-                                children: [
-                                  Radio<int>(value: m.id!),
-                                  const Text('Référence'),
-                                ],
-                              )
-                            : null,
-                      ),
-                  ],
-                ),
+              child: ListView(
+                children: [
+                  for (int i = 0; i < comparison.available.length; i++)
+                    Builder(
+                      builder: (context) {
+                        final m = comparison.available[i];
+                        final isSelected = comparison.selectedIds.contains(m.id);
+                        final color = isSelected
+                            ? _palette[selected.indexWhere((s) => s.id == m.id) % _palette.length]
+                            : Colors.grey;
+
+                        return CheckboxListTile(
+                          value: isSelected,
+                          onChanged: (_) => comparison.toggleSelected(m.id!),
+                          secondary: Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                              color: color,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          title: Text(
+                            m.displayName,
+                            style: TextStyle(
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                          subtitle: isSelected
+                              ? RadioGroup<int>(
+                                  groupValue: comparison.referenceId,
+                                  onChanged: (id) => comparison.setReference(id!),
+                                  child: Row(
+                                    children: [
+                                      Radio<int>(value: m.id!),
+                                      const Text('Référence'),
+                                    ],
+                                  ),
+                                )
+                              : null,
+                        );
+                      },
+                    ),
+                ],
               ),
             ),
             const Divider(height: 1),
+            if (selected.length > 1 && reference != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                child: SegmentedButton<bool>(
+                  segments: const [
+                    ButtonSegment(
+                      value: false,
+                      label: Text('Superposition'),
+                      icon: Icon(Icons.layers_outlined),
+                    ),
+                    ButtonSegment(
+                      value: true,
+                      label: Text('Delta (vs Réf 0dB)'),
+                      icon: Icon(Icons.compare),
+                    ),
+                  ],
+                  selected: {_isDeltaMode},
+                  onSelectionChanged: (s) => setState(() => _isDeltaMode = s.first),
+                ),
+              ),
             Expanded(
               flex: 3,
               child: Padding(
@@ -94,24 +217,18 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
                         children: [
                           Expanded(
                             child: FrequencyResponseChart(
-                              series: [
-                                for (int i = 0; i < selected.length; i++)
-                                  FrequencyResponseSeries(
-                                    label: selected[i].displayName,
-                                    response: selected[i].frequencyResponse,
-                                    color: _palette[i % _palette.length],
-                                  ),
-                              ],
+                              series: chartSeries,
+                              zeroReferenceLine: _isDeltaMode ? 0.0 : null,
                             ),
                           ),
-                          if (reference != null && selected.length > 1) ...[
+                          if (reference != null && selected.length > 1 && !_isDeltaMode) ...[
                             const SizedBox(height: 8),
                             Text(
                               'Delta vs. ${reference.displayName}',
                               style: Theme.of(context).textTheme.titleSmall,
                             ),
                             SizedBox(
-                              height: 80,
+                              height: 85,
                               child: ListView(
                                 scrollDirection: Axis.horizontal,
                                 children: [

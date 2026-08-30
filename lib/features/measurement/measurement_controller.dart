@@ -24,6 +24,19 @@ enum MeasurementStatus {
   error,
 }
 
+enum MeasurementPhase {
+  idle('Prêt.'),
+  permissionDenied('Permission micro refusée.'),
+  warmUp('Étape 1/3 : Préchauffage du microphone...'),
+  playingAndRecording('Étape 2/3 : Émission du signal & capture acoustique...'),
+  analyzing('Étape 3/3 : Déconvolution & calcul spectral...'),
+  done('Mesure terminée avec succès.'),
+  error('Erreur lors de la mesure.');
+
+  final String description;
+  const MeasurementPhase(this.description);
+}
+
 /// Drives the "lancer une mesure" flow (README "Utilisation"): runs a
 /// `MeasurementSession`, extracts a frequency response appropriate to the
 /// signal type, applies an optional mic calibration curve, and can persist
@@ -43,6 +56,8 @@ class MeasurementController extends ChangeNotifier {
   });
 
   MeasurementStatus status = MeasurementStatus.idle;
+  MeasurementPhase phase = MeasurementPhase.idle;
+  double progress = 0.0;
   String? errorMessage;
   MeasurementResult? lastResult;
   FrequencyResponse? lastFrequencyResponse;
@@ -69,11 +84,15 @@ class MeasurementController extends ChangeNotifier {
     final hasPermission = await recorder.hasPermission();
     if (!hasPermission) {
       status = MeasurementStatus.permissionDenied;
+      phase = MeasurementPhase.permissionDenied;
+      progress = 0.0;
       notifyListeners();
       return;
     }
 
     status = MeasurementStatus.measuring;
+    phase = MeasurementPhase.warmUp;
+    progress = 0.15;
     notifyListeners();
 
     try {
@@ -82,6 +101,12 @@ class MeasurementController extends ChangeNotifier {
         player: player,
         sampleRate: sampleRate,
       );
+
+      // Transition to playing and recording
+      phase = MeasurementPhase.playingAndRecording;
+      progress = 0.45;
+      notifyListeners();
+
       final result = await session.run(signalConfig);
       lastResult = result;
 
@@ -93,11 +118,15 @@ class MeasurementController extends ChangeNotifier {
             'Vérifie la permission micro, que le micro n\'est pas obstrué, '
             'et le volume de sortie.';
         status = MeasurementStatus.error;
+        phase = MeasurementPhase.error;
+        progress = 0.0;
         notifyListeners();
         return;
       }
 
       status = MeasurementStatus.analyzing;
+      phase = MeasurementPhase.analyzing;
+      progress = 0.85;
       notifyListeners();
 
       var response = _analyze(signalConfig, result);
@@ -107,9 +136,13 @@ class MeasurementController extends ChangeNotifier {
       }
       lastFrequencyResponse = OctaveBands.resample(response);
       status = MeasurementStatus.done;
+      phase = MeasurementPhase.done;
+      progress = 1.0;
     } catch (e) {
       errorMessage = e.toString();
       status = MeasurementStatus.error;
+      phase = MeasurementPhase.error;
+      progress = 0.0;
     }
     notifyListeners();
   }
@@ -182,6 +215,8 @@ class MeasurementController extends ChangeNotifier {
 
   void reset() {
     status = MeasurementStatus.idle;
+    phase = MeasurementPhase.idle;
+    progress = 0.0;
     errorMessage = null;
     lastResult = null;
     lastFrequencyResponse = null;
