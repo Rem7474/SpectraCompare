@@ -145,8 +145,23 @@ class _MeasurementRunner extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         FilledButton.icon(
-          icon: const Icon(Icons.play_arrow),
-          label: Text(isBusy ? 'Mesure en cours…' : 'Lancer la mesure'),
+          style: FilledButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          icon: isBusy
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Colors.white,
+                  ),
+                )
+              : const Icon(Icons.play_arrow),
+          label: Text(
+            isBusy ? 'Mesure en cours…' : 'Lancer la mesure',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
           onPressed: isBusy
               ? null
               : () {
@@ -156,9 +171,19 @@ class _MeasurementRunner extends StatelessWidget {
                   measurement.runMeasurement(generator.config);
                 },
         ),
-        const SizedBox(height: 8),
+        if (isBusy) ...[
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: measurement.progress > 0 ? measurement.progress : null,
+              minHeight: 6,
+            ),
+          ),
+        ],
+        const SizedBox(height: 10),
         _StatusLine(
-          status: measurement.status,
+          phase: measurement.phase,
           errorMessage: measurement.errorMessage,
         ),
       ],
@@ -167,28 +192,71 @@ class _MeasurementRunner extends StatelessWidget {
 }
 
 class _StatusLine extends StatelessWidget {
-  final MeasurementStatus status;
+  final MeasurementPhase phase;
   final String? errorMessage;
 
-  const _StatusLine({required this.status, required this.errorMessage});
+  const _StatusLine({required this.phase, required this.errorMessage});
 
   @override
   Widget build(BuildContext context) {
-    final (text, color) = switch (status) {
-      MeasurementStatus.idle => ('Prêt.', Colors.grey),
-      MeasurementStatus.permissionDenied => (
-        'Permission micro refusée — active-la dans les réglages du téléphone.',
+    final (text, color, icon) = switch (phase) {
+      MeasurementPhase.idle => ('Prêt.', Colors.grey, Icons.info_outline),
+      MeasurementPhase.permissionDenied => (
+        'Permission micro refusée — active-la dans les réglages.',
         Colors.red,
+        Icons.mic_off,
       ),
-      MeasurementStatus.measuring => (
-        'Un chirp de calibration puis le signal de test vont être joués et enregistrés…',
+      MeasurementPhase.warmUp => (
+        phase.description,
         Colors.blue,
+        Icons.hourglass_top,
       ),
-      MeasurementStatus.analyzing => ('Analyse du signal…', Colors.blue),
-      MeasurementStatus.done => ('Mesure terminée.', Colors.green),
-      MeasurementStatus.error => ('Erreur: $errorMessage', Colors.red),
+      MeasurementPhase.playingAndRecording => (
+        phase.description,
+        Colors.orange,
+        Icons.graphic_eq,
+      ),
+      MeasurementPhase.analyzing => (
+        phase.description,
+        Colors.purple,
+        Icons.analytics_outlined,
+      ),
+      MeasurementPhase.done => (
+        'Mesure terminée avec succès.',
+        Colors.green,
+        Icons.check_circle_outline,
+      ),
+      MeasurementPhase.error => (
+        'Erreur: ${errorMessage ?? "Inconnue"}',
+        Colors.red,
+        Icons.error_outline,
+      ),
     };
-    return Text(text, style: TextStyle(color: color));
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withAlpha(25),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: color.withAlpha(80)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

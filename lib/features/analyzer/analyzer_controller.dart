@@ -34,10 +34,22 @@ class AnalyzerController extends ChangeNotifier {
   );
 
   bool isRunning = false;
+  bool isPaused = false;
   Spectrum? latestSpectrum;
+  Spectrum? peakHoldSpectrum;
   final List<Float64List> spectrogramColumns = [];
 
   Future<bool> hasPermission() => _recorder.hasPermission();
+
+  void togglePause() {
+    isPaused = !isPaused;
+    notifyListeners();
+  }
+
+  void resetPeakHold() {
+    peakHoldSpectrum = null;
+    notifyListeners();
+  }
 
   Future<void> start() async {
     if (isRunning) return;
@@ -84,17 +96,37 @@ class AnalyzerController extends ChangeNotifier {
     if (stream == null) return;
 
     isRunning = true;
+    isPaused = false;
     notifyListeners();
     _sub = stream.listen(_onData);
   }
 
   void _onData(Uint8List bytes) {
+    if (isPaused) return;
     final ring = _ringBuffer;
     if (ring == null) return;
     final frames = ring.addBytes(bytes);
     for (final frame in frames) {
       final spectrum = FftUtils.magnitudeSpectrum(frame, sampleRate);
       latestSpectrum = spectrum;
+
+      // Update Peak Hold
+      final currentPeak = peakHoldSpectrum;
+      if (currentPeak == null ||
+          currentPeak.magnitudesDb.length != spectrum.magnitudesDb.length) {
+        peakHoldSpectrum = Spectrum(
+          spectrum.freqsHz,
+          Float64List.fromList(spectrum.magnitudesDb),
+        );
+      } else {
+        final peaks = currentPeak.magnitudesDb;
+        for (int i = 0; i < peaks.length; i++) {
+          if (spectrum.magnitudesDb[i] > peaks[i]) {
+            peaks[i] = spectrum.magnitudesDb[i];
+          }
+        }
+      }
+
       spectrogramColumns.add(_downsampleLog(spectrum));
       if (spectrogramColumns.length > spectrogramHistory) {
         spectrogramColumns.removeAt(0);

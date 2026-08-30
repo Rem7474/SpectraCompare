@@ -195,10 +195,36 @@ class _MicTestCardState extends State<_MicTestCard> {
     }
   }
 
+  String _levelAssessment(double dbFs) {
+    if (!dbFs.isFinite || dbFs < -50) {
+      return 'Signal trop faible / Silence (Vérifier micro)';
+    }
+    if (dbFs < -35) {
+      return 'Niveau faible (Rapprocher le micro ou monter le volume)';
+    }
+    if (dbFs < -10) {
+      return 'Niveau optimal pour la mesure';
+    }
+    if (dbFs < -2) {
+      return 'Niveau fort (Attention aux réflexions)';
+    }
+    return 'Risque de saturation (Baisser le volume)';
+  }
+
   Color _levelColor(double dbFs) {
-    if (!dbFs.isFinite || dbFs < -50) return Colors.red;
-    if (dbFs < -30) return Colors.orange;
-    return Colors.green;
+    if (!dbFs.isFinite || dbFs < -50) {
+      return Colors.red;
+    }
+    if (dbFs < -35) {
+      return Colors.orange;
+    }
+    if (dbFs < -10) {
+      return Colors.green;
+    }
+    if (dbFs < -2) {
+      return Colors.amber;
+    }
+    return Colors.red;
   }
 
   @override
@@ -211,6 +237,12 @@ class _MicTestCardState extends State<_MicTestCard> {
   @override
   Widget build(BuildContext context) {
     final running = _status == _MicTestStatus.running;
+    final level = _levelDbFs;
+    // Map -60 dBFS .. 0 dBFS to 0.0 .. 1.0 for the visual meter
+    final meterFraction = level != null && level.isFinite
+        ? ((level + 60) / 60).clamp(0.0, 1.0)
+        : 0.0;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
       child: Column(
@@ -223,22 +255,102 @@ class _MicTestCardState extends State<_MicTestCard> {
           const SizedBox(height: 4),
           const Text(
             'Joue un ton court et fort, puis affiche le niveau réellement capté '
-            'par le micro — utile pour comparer des réglages audio (Bluetooth, '
-            'position...) sans lancer une mesure complète.',
+            'par le micro — utile pour vérifier l\'absence d\'AEC et calibrer '
+            'la distance sans lancer une mesure complète.',
             style: TextStyle(fontSize: 12, color: Colors.grey),
           ),
-          const SizedBox(height: 8),
-          if (_status == _MicTestStatus.done && _levelDbFs != null)
-            Text(
-              'Niveau capté : ${_levelDbFs!.isFinite ? '${_levelDbFs!.toStringAsFixed(0)}dBFS' : 'silence'}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: _levelColor(_levelDbFs!),
+          const SizedBox(height: 10),
+          if (_status == _MicTestStatus.done && level != null) ...[
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest.withAlpha(120),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Niveau : ${level.isFinite ? '${level.toStringAsFixed(1)} dBFS' : 'Silence'}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: _levelColor(level),
+                        ),
+                      ),
+                      Text(
+                        _levelAssessment(level),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                          color: _levelColor(level),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(4),
+                    child: SizedBox(
+                      height: 10,
+                      child: Stack(
+                        children: [
+                          Container(color: Colors.grey.withAlpha(60)),
+                          FractionallySizedBox(
+                            widthFactor: meterFraction,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.blue,
+                                    Colors.green,
+                                    if (meterFraction > 0.7) Colors.amber,
+                                    if (meterFraction > 0.9) Colors.red,
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  const Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        '-60 dB',
+                        style: TextStyle(fontSize: 9, color: Colors.grey),
+                      ),
+                      Text(
+                        '-30 dB',
+                        style: TextStyle(fontSize: 9, color: Colors.grey),
+                      ),
+                      Text(
+                        '-10 dB',
+                        style: TextStyle(fontSize: 9, color: Colors.grey),
+                      ),
+                      Text(
+                        '0 dB',
+                        style: TextStyle(fontSize: 9, color: Colors.grey),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          if (_status == _MicTestStatus.error && _error != null)
+            const SizedBox(height: 8),
+          ],
+          if (_status == _MicTestStatus.error && _error != null) ...[
             Text(_error!, style: const TextStyle(color: Colors.red)),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
+          ],
           FilledButton.icon(
             onPressed: running ? null : _run,
             icon: running
@@ -248,7 +360,7 @@ class _MicTestCardState extends State<_MicTestCard> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.mic),
-            label: Text(running ? 'Test en cours…' : 'Lancer le test'),
+            label: Text(running ? 'Test en cours…' : 'Lancer le test micro'),
           ),
         ],
       ),
