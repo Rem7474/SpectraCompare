@@ -2,7 +2,7 @@ name: spectra_compare
 description: "Analyseur spectral mobile avec générateur de signaux de test intégré, pour enregistrer, analyser et comparer des enceintes."
 publish_to: 'none'
 
-version: 0.0.7+1
+version: 1.0.0+8
 
 environment:
   sdk: ^3.12.0

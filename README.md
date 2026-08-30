@@ -25,13 +25,14 @@ C'est la pierre angulaire de l'app : sans signal de test contrôlé et reproduct
 
 ## ✨ Autres fonctionnalités
 
-- **Analyse FFT temps réel** avec affichage du spectre de fréquences (20 Hz – 20 kHz) et spectrogramme
-- **Mesure par déconvolution ESS** (méthode Farina) pour le sweep, méthode de Welch pour les bruits — extraction de la réponse en fréquence complète en un seul passage
-- **Mesure SPL relative** (dBFS, avec offset de calibration optionnel)
-- **Comparaison multi-enceintes** : superposition de courbes, calcul de delta en dB par bande de 1/3 d'octave vs. une mesure de référence
-- **Export des données** (CSV, JSON) pour analyse externe
-- **Bibliothèque de mesures** avec tags (modèle enceinte, position, distance, niveau de sortie, signal utilisé)
-- **Mode calibration micro** avec import de fichier de correction (compatible format REW/miniDSP)
+- **Analyse FFT temps réel & Spectrogramme** avec fonction *Peak Hold* (maintien des crêtes) et *Freeze* (mise en pause du flux).
+- **Mesure par déconvolution ESS** (méthode Farina) pour le sweep avec fenêtrage asymétrique, méthode de Welch pour les bruits — extraction de la réponse en fréquence complète en un seul passage.
+- **Lissage fractionnaire d'octave interactif** (`1/3 oct`, `1/6 oct`, `1/12 oct`, `1/24 oct`, `Brut`) pour faciliter la lecture des courbes.
+- **Comparaison multi-enceintes avancée** : mode superposition de courbes et mode *Delta dB vs. Référence* (alignement sur ligne 0 dB).
+- **Mesure SPL relative** (dBFS, avec offset de calibration optionnel) et barre de progression animée par étapes.
+- **Export des données** (CSV, JSON) pour analyse externe.
+- **Bibliothèque de mesures** avec recherche instantanée, tags (modèle enceinte, position, distance, niveau de sortie, signal utilisé) et confirmation de suppression.
+- **Mode calibration micro** avec import de fichier de correction (compatible format REW/miniDSP) et vu-mètre visuel de test rapide.
 
 ## ⏱️ Synchronisation et gestion de la latence
 

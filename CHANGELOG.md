@@ -2,6 +2,23 @@
 
 All notable changes to this project are documented in this file.
 
+## [1.0.0] - 2026-08-30
+
+### Corrigé
+- **Pipeline Audio & Annulation d'écho (AEC Android)** : Bypass de l'AEC matériel via `AndroidAudioSource.unprocessed` (API 24+) avec mécanisme de repli automatique en cascade (`unprocessed` $\to$ `camcorder` $\to$ `mic`).
+- **Session Audio Haute-Fidélité** : Configuration de la session audio en `AndroidAudioContentType.music` avec `AndroidAudioUsage.media`.
+- **Analyseur RTA en direct** : Désactivation explicite des filtres matériels (AEC, réduction de bruit, AGC) et du routage Bluetooth SCO parasite.
+- **Déconvolution Farina** : Remplacement de la fenêtre Tukey symétrique par un fenêtrage asymétrique (`_asymmetricWindow`) pour préserver l'impulsion acoustique directe sans atténuation parasite.
+
+### Ajouté
+- **Lissage fractionnaire d'octave** : Intégration du lissage gaussien par bandes d'octave (`1/3 oct`, `1/6 oct`, `1/12 oct`, `1/24 oct`, `Brut`) avec sélecteur direct sur les graphiques de réponse en fréquence.
+- **Progression et étapes de mesure animées** : Barre de progression dynamique et suivi des phases (*Préchauffage* $\to$ *Émission & Capture* $\to$ *Analyse FFT* $\to$ *Terminé*).
+- **Mode Comparaison Delta dB** : Affichage graphique des écarts $\Delta\text{dB}$ relatifs par rapport à une mesure de référence (ligne 0 dB).
+- **Peak Hold & Freeze sur l'analyseur** : Tracé orange persistant des crêtes maximales et bouton pause/reprendre pour figer le spectre et le spectrogramme en direct.
+- **Vu-mètre dynamique Test Micro** : Jauge LED colorée (-60 dBFS à 0 dBFS) avec diagnostic instantané du niveau sonore.
+- **Recherche & gestion Bibliothèque** : Barre de recherche instantanée (par nom, modèle, tag), confirmation de suppression `AlertDialog` et formatage des dates.
+- **Curseur musical** : Affichage de la note de musique la plus proche sur le curseur des courbes.
+
 ## [0.0.7] - 2026-08-02
 
 ### Corrigé
