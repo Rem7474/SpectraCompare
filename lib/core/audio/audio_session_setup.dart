@@ -26,7 +26,7 @@ class AudioSessionSetup {
         avAudioSessionRouteSharingPolicy:
             AVAudioSessionRouteSharingPolicy.defaultPolicy,
         androidAudioAttributes: AndroidAudioAttributes(
-          contentType: AndroidAudioContentType.unknown,
+          contentType: AndroidAudioContentType.music,
           usage: AndroidAudioUsage.media,
         ),
         androidAudioFocusGainType: AndroidAudioFocusGainType.gain,

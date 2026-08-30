@@ -26,54 +26,54 @@ class RecorderService implements Recorder {
     final path =
         '${dir.path}/spectracompare_rec_${DateTime.now().microsecondsSinceEpoch}.wav';
     _currentPath = path;
-    await _recorder.start(
-      rec.RecordConfig(
-        encoder: rec.AudioEncoder.wav,
-        sampleRate: sampleRate,
-        numChannels: 1,
-        androidConfig: const rec.AndroidRecordConfig(
-          // `unprocessed` (AudioSource.UNPROCESSED, API 24+) is only
-          // guaranteed to exist on devices declaring FEATURE_AUDIO_PRO;
-          // on unsupported hardware it can silently capture near-total
-          // silence instead of throwing. `mic` is universally supported and,
-          // combined with the echoCancel/noiseSuppress/autoGain flags below
-          // (applied via AudioEffect independently of the source), gives the
-          // same "don't process the signal" intent far more reliably.
-          audioSource: rec.AndroidAudioSource.mic,
-          // `record` defaults this to true, which makes it actively try to
-          // open a Bluetooth SCO connection for the mic input whenever one
-          // is available. SCO routes capture through the *Bluetooth
-          // device's* mic (meant for call headsets) instead of the phone's
-          // own mic, and fights with the A2DP route `just_audio` is using
-          // for playback. We always want the phone's own mic, regardless of
-          // where playback is routed.
-          manageBluetooth: false,
-          // Tried `AudioManagerMode.modeInCommunication` here as the
-          // plugin's documented knob for concurrent record+playback issues,
-          // but on a real device (Pixel) it made things *worse*: capture
-          // stayed near-silent even measuring through the phone's own
-          // speaker+mic (no Bluetooth involved at all). That's consistent
-          // with modeInCommunication putting the device in "phone call"
-          // mode, which triggers the most aggressive acoustic echo
-          // cancellation path precisely for local-speaker-into-local-mic —
-          // exactly the scenario it then suppressed. Back to modeNormal
-          // (the plugin's default).
-        ),
-        // Mirror the same "phone mic regardless of BT output" intent on iOS:
-        // default `allowBluetooth` enables Bluetooth Hands-Free routing,
-        // which has the same SCO-vs-A2DP conflict as Android above.
-        iosConfig: const rec.IosRecordConfig(
-          categoryOptions: [
-            rec.IosAudioCategoryOption.defaultToSpeaker,
-            rec.IosAudioCategoryOption.allowBluetoothA2DP,
-          ],
-        ),
-        echoCancel: false,
-        noiseSuppress: false,
-        autoGain: false,
-      ),
-      path: path,
-    );
+
+    // List of candidate audio sources in order of preference for acoustic
+    // measurement:
+    // 1. `unprocessed` (API 24+): raw mic input without AEC, AGC, or noise
+    //    suppression DSP filters.
+    // 2. `camcorder`: tuned for environmental audio without telephony AEC.
+    // 3. `mic`: universal fallback if hardware rejects unprocessed.
+    const candidateSources = [
+      rec.AndroidAudioSource.unprocessed,
+      rec.AndroidAudioSource.camcorder,
+      rec.AndroidAudioSource.mic,
+    ];
+
+    Object? lastError;
+    for (final source in candidateSources) {
+      try {
+        await _recorder.start(
+          rec.RecordConfig(
+            encoder: rec.AudioEncoder.wav,
+            sampleRate: sampleRate,
+            numChannels: 1,
+            androidConfig: rec.AndroidRecordConfig(
+              audioSource: source,
+              manageBluetooth: false,
+            ),
+            iosConfig: const rec.IosRecordConfig(
+              categoryOptions: [
+                rec.IosAudioCategoryOption.defaultToSpeaker,
+                rec.IosAudioCategoryOption.allowBluetoothA2DP,
+              ],
+            ),
+            echoCancel: false,
+            noiseSuppress: false,
+            autoGain: false,
+          ),
+          path: path,
+        );
+        return;
+      } catch (e) {
+        lastError = e;
+        // Try next fallback audio source if start failed.
+        continue;
+      }
+    }
+
+    if (lastError != null) {
+      throw StateError('Failed to start recorder on any audio source: $lastError');
+    }
   }
 
   @override
