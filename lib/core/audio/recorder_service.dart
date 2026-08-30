@@ -72,7 +72,9 @@ class RecorderService implements Recorder {
     }
 
     if (lastError != null) {
-      throw StateError('Failed to start recorder on any audio source: $lastError');
+      throw StateError(
+        'Failed to start recorder on any audio source: $lastError',
+      );
     }
   }
 
