@@ -102,7 +102,9 @@ class _ComparisonScreenState extends State<ComparisonScreen> {
 
       for (int i = 0; i < selected.length; i++) {
         final m = selected[i];
-        if (m.id == reference.id) continue;
+        if (m.id == reference.id) {
+          continue;
+        }
         final deltaResponse = _calculateDelta(
           m.frequencyResponse,
           reference.frequencyResponse,

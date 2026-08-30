@@ -196,20 +196,34 @@ class _MicTestCardState extends State<_MicTestCard> {
   }
 
   String _levelAssessment(double dbFs) {
-    if (!dbFs.isFinite || dbFs < -50)
+    if (!dbFs.isFinite || dbFs < -50) {
       return 'Signal trop faible / Silence (Vérifier micro)';
-    if (dbFs < -35)
+    }
+    if (dbFs < -35) {
       return 'Niveau faible (Rapprocher le micro ou monter le volume)';
-    if (dbFs < -10) return 'Niveau optimal pour la mesure';
-    if (dbFs < -2) return 'Niveau fort (Attention aux réflexions)';
+    }
+    if (dbFs < -10) {
+      return 'Niveau optimal pour la mesure';
+    }
+    if (dbFs < -2) {
+      return 'Niveau fort (Attention aux réflexions)';
+    }
     return 'Risque de saturation (Baisser le volume)';
   }
 
   Color _levelColor(double dbFs) {
-    if (!dbFs.isFinite || dbFs < -50) return Colors.red;
-    if (dbFs < -35) return Colors.orange;
-    if (dbFs < -10) return Colors.green;
-    if (dbFs < -2) return Colors.amber;
+    if (!dbFs.isFinite || dbFs < -50) {
+      return Colors.red;
+    }
+    if (dbFs < -35) {
+      return Colors.orange;
+    }
+    if (dbFs < -10) {
+      return Colors.green;
+    }
+    if (dbFs < -2) {
+      return Colors.amber;
+    }
     return Colors.red;
   }
 

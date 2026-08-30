@@ -52,9 +52,13 @@ class FrequencySmoothing {
 
       for (int j = 0; j < n; j++) {
         final f = points[j].freqHz;
-        if (f <= 0) continue;
+        if (f <= 0) {
+          continue;
+        }
         final logF = math.log(f);
-        if (logF < minLog || logF > maxLog) continue;
+        if (logF < minLog || logF > maxLog) {
+          continue;
+        }
 
         final dist = (logF - logCenter) / halfWidthLog;
         final weight = math.exp(-0.5 * dist * dist);
