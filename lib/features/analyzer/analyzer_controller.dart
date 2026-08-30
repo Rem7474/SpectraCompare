@@ -45,13 +45,44 @@ class AnalyzerController extends ChangeNotifier {
     if (!granted) return;
 
     _ringBuffer = PcmRingBuffer(frameSize: frameSize, hopSize: frameSize ~/ 2);
-    final stream = await _recorder.startStream(
-      rec.RecordConfig(
-        encoder: rec.AudioEncoder.pcm16bits,
-        sampleRate: sampleRate,
-        numChannels: 1,
-      ),
-    );
+    Stream<Uint8List>? stream;
+    const candidateSources = [
+      rec.AndroidAudioSource.unprocessed,
+      rec.AndroidAudioSource.camcorder,
+      rec.AndroidAudioSource.mic,
+    ];
+
+    for (final source in candidateSources) {
+      try {
+        stream = await _recorder.startStream(
+          rec.RecordConfig(
+            encoder: rec.AudioEncoder.pcm16bits,
+            sampleRate: sampleRate,
+            numChannels: 1,
+            androidConfig: rec.AndroidRecordConfig(
+              audioSource: source,
+              manageBluetooth: false,
+            ),
+            iosConfig: const rec.IosRecordConfig(
+              categoryOptions: [
+                rec.IosAudioCategoryOption.defaultToSpeaker,
+                rec.IosAudioCategoryOption.allowBluetoothA2DP,
+              ],
+            ),
+            echoCancel: false,
+            noiseSuppress: false,
+            autoGain: false,
+          ),
+        );
+        break;
+      } catch (_) {
+        // Try fallback source if startStream fails.
+        continue;
+      }
+    }
+
+    if (stream == null) return;
+
     isRunning = true;
     notifyListeners();
     _sub = stream.listen(_onData);

@@ -104,11 +104,18 @@ class ExponentialSweepDeconvolver {
     final start = math.max(0, peakIndex - preSamples);
     final end = math.min(ir.length, peakIndex + postSamples);
     final segment = Float64List.sublistView(ir, start, end);
+    final relativePeakIndex = peakIndex - start;
 
-    final tapered = _tukeyWindow(
-      segment.length,
-      taperFraction,
-    ).applyWindowReal(segment);
+    final window = _asymmetricWindow(
+      length: segment.length,
+      peakIndex: relativePeakIndex,
+      rightTaperFraction: taperFraction,
+    );
+    final tapered = Float64List(segment.length);
+    for (int i = 0; i < segment.length; i++) {
+      tapered[i] = segment[i] * window[i];
+    }
+
     final spectrum = FftUtils.magnitudeSpectrum(
       tapered,
       sampleRate,
@@ -124,15 +131,40 @@ class ExponentialSweepDeconvolver {
     return FrequencyResponse(points);
   }
 
-  static Float64List _tukeyWindow(int size, double taperFraction) {
-    final w = Float64List(size)..fillRange(0, size, 1.0);
-    if (size < 2 || taperFraction <= 0) return w;
-    final taperLen = math.max(1, (taperFraction * size / 2).round());
-    for (int i = 0; i < taperLen; i++) {
-      final v = 0.5 * (1 - math.cos(math.pi * i / taperLen));
-      w[i] = v;
-      w[size - 1 - i] = v;
+  /// Builds an asymmetric acoustic measurement window around [peakIndex]
+  /// in the impulse response segment.
+  ///
+  /// Unlike a symmetric Tukey window (which would attenuate the direct sound
+  /// peak if pre and post window durations are asymmetrical), this preserves
+  /// the direct acoustic arrival peak at unity gain (1.0), applies a smooth
+  /// half-Hann fade-in on the pre-peak arrival, and a smooth fade-out on the
+  /// post-peak room tail.
+  static Float64List _asymmetricWindow({
+    required int length,
+    required int peakIndex,
+    double rightTaperFraction = 0.2,
+  }) {
+    final w = Float64List(length)..fillRange(0, length, 1.0);
+    if (length < 2) return w;
+
+    // Left fade-in (pre-peak)
+    if (peakIndex > 0) {
+      for (int i = 0; i < peakIndex; i++) {
+        w[i] = 0.5 * (1 - math.cos(math.pi * i / peakIndex));
+      }
     }
+
+    // Right fade-out (post-peak tail)
+    final postSamples = length - 1 - peakIndex;
+    if (postSamples > 0 && rightTaperFraction > 0) {
+      final taperLen = math.max(1, (postSamples * rightTaperFraction).round());
+      final taperStart = length - taperLen;
+      for (int i = taperStart; i < length; i++) {
+        final progress = (i - taperStart + 1) / (taperLen + 1);
+        w[i] = 0.5 * (1 + math.cos(math.pi * progress));
+      }
+    }
+
     return w;
   }
 }
