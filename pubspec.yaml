@@ -49,5 +49,8 @@ dev_dependencies:
   # Fakes/mocks for controller and orchestration tests
   mocktail: ^1.0.4
 
+  # Real font rendering and goldens
+  golden_toolkit: ^0.15.0
+
 flutter:
   uses-material-design: true

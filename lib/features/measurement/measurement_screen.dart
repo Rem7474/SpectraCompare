@@ -110,9 +110,22 @@ class _SignalParamsEditor extends StatelessWidget {
               label: '${config.levelDbfs.round()}dBFS',
               onChanged: generator.setLevelDbfs,
             ),
-            const Text(
-              '⚠️ Niveau contrôlé pour protéger les enceintes et garder des comparaisons à niveau constant.',
-              style: TextStyle(fontSize: 12, color: Colors.orange),
+            const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.warning_amber_rounded,
+                  size: 16,
+                  color: Colors.orange,
+                ),
+                SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Niveau contrôlé pour protéger les enceintes et garder des comparaisons à niveau constant.',
+                    style: TextStyle(fontSize: 12, color: Colors.orange),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

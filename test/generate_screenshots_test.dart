@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 import 'package:record/record.dart';
@@ -30,8 +31,9 @@ import 'widgets/test_helpers.dart';
 class MockAudioRecorder extends Mock implements AudioRecorder {}
 
 void main() {
-  setUpAll(() {
+  setUpAll(() async {
     sqfliteFfiInit();
+    await loadAppFonts();
   });
 
   Widget wrapScreen(Widget child, {int tabIndex = 0}) {
