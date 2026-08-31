@@ -1,6 +1,8 @@
 # 🔊 SpectraCompare
 
 [![CI](https://github.com/Rem7474/SpectraCompare/actions/workflows/ci.yml/badge.svg)](https://github.com/Rem7474/SpectraCompare/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/Rem7474/SpectraCompare?color=brightgreen)](https://github.com/Rem7474/SpectraCompare/releases)
+[![Download APK](https://img.shields.io/badge/Download-APK-blue.svg?logo=android)](https://github.com/Rem7474/SpectraCompare/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 ![Flutter](https://img.shields.io/badge/Flutter-3.44-02569B?logo=flutter&logoColor=white)
 
@@ -134,7 +136,12 @@ flutter analyze                                      # lint / erreurs statiques
 flutter test --coverage                               # suite de tests complète
 ```
 
-GitHub Actions exécute automatiquement cette même suite sur chaque push/PR vers `main` ([`ci.yml`](.github/workflows/ci.yml)), et construit des artefacts APK Android / build iOS sur `main` et les tags `v*` ([`build.yml`](.github/workflows/build.yml)). Les dépendances (`pub` et Actions) sont mises à jour automatiquement chaque semaine via Dependabot.
+GitHub Actions assure l'intégration continue et la livraison automatisée :
+- [`ci.yml`](.github/workflows/ci.yml) : validation sur chaque push/PR vers `main` (formatage `dart format`, analyse statique stricte `flutter analyze --fatal-infos`, suite de 54 tests unitaires & widget).
+- [`build.yml`](.github/workflows/build.yml) : compilation de l'APK Android release et du simulateur iOS sur `main` et publication automatique de l'APK signé lors du push d'un tag de release (`v*`).
+- [`screenshots.yml`](.github/workflows/screenshots.yml) : génération et mise à jour automatique des captures d'écran de l'application à chaque nouvelle release.
+
+Les dépendances (`pub` et Actions) sont mises à jour automatiquement chaque semaine via Dependabot.
 
 ## ⚠️ Limites connues
 
@@ -144,14 +151,17 @@ GitHub Actions exécute automatiquement cette même suite sur chaque push/PR ver
 
 ## 🗺️ Roadmap
 
-- [x] Générateur de signaux (sweep, pink/white noise, burst, ton pur) — v1
-- [x] Synchronisation lecture/enregistrement robuste sans détection de latence (fenêtre large + déconvolution auto-localisante) — v1
-- [x] Analyse FFT temps réel + spectrogramme — v1
-- [x] Déconvolution ESS (sweep) et méthode de Welch (bruit) — v1
-- [x] Comparaison multi-enceintes par bandes 1/3 octave — v1
-- [x] Export CSV/JSON, bibliothèque de mesures, calibration micro — v1
-- [x] CI (lint, tests) + build artefacts automatisés — v1
-- [ ] MLS pour mesures en environnement bruité
+- [x] Générateur de signaux (sweep, pink/white noise, burst, ton pur) — v1.0.0
+- [x] Synchronisation lecture/enregistrement robuste sans détection de latence (fenêtre large + déconvolution auto-localisante) — v1.0.0
+- [x] Bypass AEC matériel (source `unprocessed`) & AudioSession haute fidélité — v1.0.0
+- [x] Analyse FFT temps réel (Peak Hold, Freeze) + Spectrogramme couleur — v1.0.0
+- [x] Déconvolution ESS Farina avec fenêtrage asymétrique et méthode de Welch — v1.0.0
+- [x] Lissage fractionnaire d'octave interactif (1/3, 1/6, 1/12, 1/24, Brut) — v1.0.0
+- [x] Comparaison multi-enceintes (mode superposition & mode Delta dB vs. Référence) — v1.0.0
+- [x] Export CSV/JSON, bibliothèque avec recherche instantanée, calibration micro REW — v1.0.0
+- [x] Galerie de captures d'écran automatisée en CI à chaque release — v1.0.0
+- [x] CI/CD complète avec builds Android APK & iOS — v1.0.0
+- [ ] MLS (Maximum Length Sequence) pour mesures en environnement bruité
 - [ ] Export rapport PDF comparatif
 - [ ] Mode "double blind test" (A/B comparaison à l'aveugle)
 - [ ] Synchronisation cloud multi-appareils
