@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:mocktail/mocktail.dart';
@@ -26,8 +29,6 @@ import 'package:spectra_compare/features/measurement/measurement_controller.dart
 import 'package:spectra_compare/features/measurement/measurement_screen.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import 'widgets/test_helpers.dart';
-
 class MockAudioRecorder extends Mock implements AudioRecorder {}
 
 void main() {
@@ -36,40 +37,87 @@ void main() {
     await loadAppFonts();
   });
 
-  Widget wrapScreen(Widget child, {int tabIndex = 0}) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorSchemeSeed: Colors.deepPurple,
-        brightness: Brightness.dark,
-        useMaterial3: true,
-      ),
-      home: Scaffold(
-        body: child,
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: tabIndex,
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.graphic_eq),
-              label: 'Mesurer',
+  AppDatabase testAppDatabase() {
+    return AppDatabase(
+      factory: databaseFactoryFfiNoIsolate,
+      path: inMemoryDatabasePath,
+    );
+  }
+
+  Future<void> captureScreen(
+    WidgetTester tester,
+    Widget child,
+    String fileName, {
+    int tabIndex = 0,
+    Size size = const Size(390, 844),
+  }) async {
+    tester.view.physicalSize = size * 2.0;
+    tester.view.devicePixelRatio = 2.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    final key = GlobalKey();
+
+    await tester.pumpWidget(
+      RepaintBoundary(
+        key: key,
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            colorSchemeSeed: Colors.deepPurple,
+            brightness: Brightness.dark,
+            useMaterial3: true,
+          ),
+          home: Scaffold(
+            body: child,
+            bottomNavigationBar: NavigationBar(
+              selectedIndex: tabIndex,
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(Icons.graphic_eq),
+                  label: 'Mesurer',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.show_chart),
+                  label: 'Analyseur',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.folder_outlined),
+                  label: 'Bibliothèque',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.compare_arrows),
+                  label: 'Comparaison',
+                ),
+                NavigationDestination(
+                  icon: Icon(Icons.tune),
+                  label: 'Calibration',
+                ),
+              ],
             ),
-            NavigationDestination(
-              icon: Icon(Icons.show_chart),
-              label: 'Analyseur',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.folder_outlined),
-              label: 'Bibliothèque',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.compare_arrows),
-              label: 'Comparaison',
-            ),
-            NavigationDestination(icon: Icon(Icons.tune), label: 'Calibration'),
-          ],
+          ),
         ),
       ),
     );
+    await tester.pump(const Duration(milliseconds: 200));
+
+    final boundary =
+        key.currentContext?.findRenderObject() as RenderRepaintBoundary?;
+    expect(boundary, isNotNull);
+
+    await tester.runAsync(() async {
+      final image = await boundary!.toImage(pixelRatio: 2.0);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final bytes = byteData!.buffer.asUint8List();
+
+      final dir = Directory('screenshot');
+      if (!dir.existsSync()) {
+        dir.createSync(recursive: true);
+      }
+      File('screenshot/$fileName').writeAsBytesSync(bytes);
+    });
   }
 
   FrequencyResponse generateMockResponse({
@@ -105,13 +153,6 @@ void main() {
   }
 
   testWidgets('Generate Screenshot - 01_Mesure.png', (tester) async {
-    tester.view.physicalSize = const Size(390 * 2, 844 * 2);
-    tester.view.devicePixelRatio = 2.0;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
-
     final db = testAppDatabase();
     final mDao = MeasurementDao(db);
     final cDao = CalibrationCurveDao(db);
@@ -120,32 +161,22 @@ void main() {
     final measCtrl = MeasurementController(measurementDao: mDao);
     final calCtrl = CalibrationController(dao: cDao);
 
-    await tester.pumpWidget(
+    await captureScreen(
+      tester,
       MultiProvider(
         providers: [
           ChangeNotifierProvider.value(value: genCtrl),
           ChangeNotifierProvider.value(value: measCtrl),
           ChangeNotifierProvider.value(value: calCtrl),
         ],
-        child: wrapScreen(const MeasurementScreen(), tabIndex: 0),
+        child: const MeasurementScreen(),
       ),
-    );
-    await tester.pump(const Duration(milliseconds: 100));
-
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('../screenshot/01_Mesure.png'),
+      '01_Mesure.png',
+      tabIndex: 0,
     );
   });
 
   testWidgets('Generate Screenshot - 02_Analyseur.png', (tester) async {
-    tester.view.physicalSize = const Size(390 * 2, 844 * 2);
-    tester.view.devicePixelRatio = 2.0;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
-
     final mockRecorder = MockAudioRecorder();
     when(() => mockRecorder.hasPermission()).thenAnswer((_) async => true);
     when(() => mockRecorder.dispose()).thenAnswer((_) async {});
@@ -176,28 +207,18 @@ void main() {
       analyzer.spectrogramColumns.add(col);
     }
 
-    await tester.pumpWidget(
+    await captureScreen(
+      tester,
       ChangeNotifierProvider.value(
         value: analyzer,
-        child: wrapScreen(const AnalyzerScreen(), tabIndex: 1),
+        child: const AnalyzerScreen(),
       ),
-    );
-    await tester.pump(const Duration(milliseconds: 100));
-
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('../screenshot/02_Analyseur.png'),
+      '02_Analyseur.png',
+      tabIndex: 1,
     );
   });
 
   testWidgets('Generate Screenshot - 03_Comparaison.png', (tester) async {
-    tester.view.physicalSize = const Size(390 * 2, 844 * 2);
-    tester.view.devicePixelRatio = 2.0;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
-
     final db = testAppDatabase();
     final mDao = MeasurementDao(db);
 
@@ -244,28 +265,18 @@ void main() {
     compCtrl.toggleSelected(id2);
     compCtrl.setReference(id1);
 
-    await tester.pumpWidget(
+    await captureScreen(
+      tester,
       ChangeNotifierProvider.value(
         value: compCtrl,
-        child: wrapScreen(const ComparisonScreen(), tabIndex: 3),
+        child: const ComparisonScreen(),
       ),
-    );
-    await tester.pump(const Duration(milliseconds: 100));
-
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('../screenshot/03_Comparaison.png'),
+      '03_Comparaison.png',
+      tabIndex: 3,
     );
   });
 
   testWidgets('Generate Screenshot - 04_Bibliotheque.png', (tester) async {
-    tester.view.physicalSize = const Size(390 * 2, 844 * 2);
-    tester.view.devicePixelRatio = 2.0;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
-
     final db = testAppDatabase();
     final mDao = MeasurementDao(db);
 
@@ -317,28 +328,18 @@ void main() {
     final libCtrl = LibraryController(measurementDao: mDao);
     await libCtrl.load();
 
-    await tester.pumpWidget(
+    await captureScreen(
+      tester,
       ChangeNotifierProvider.value(
         value: libCtrl,
-        child: wrapScreen(const LibraryScreen(), tabIndex: 2),
+        child: const LibraryScreen(),
       ),
-    );
-    await tester.pump(const Duration(milliseconds: 100));
-
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('../screenshot/04_Bibliotheque.png'),
+      '04_Bibliotheque.png',
+      tabIndex: 2,
     );
   });
 
   testWidgets('Generate Screenshot - 05_Calibration.png', (tester) async {
-    tester.view.physicalSize = const Size(390 * 2, 844 * 2);
-    tester.view.devicePixelRatio = 2.0;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
-
     final db = testAppDatabase();
     final cDao = CalibrationCurveDao(db);
 
@@ -358,17 +359,14 @@ void main() {
     final calCtrl = CalibrationController(dao: cDao);
     await calCtrl.load();
 
-    await tester.pumpWidget(
+    await captureScreen(
+      tester,
       ChangeNotifierProvider.value(
         value: calCtrl,
-        child: wrapScreen(const CalibrationScreen(), tabIndex: 4),
+        child: const CalibrationScreen(),
       ),
-    );
-    await tester.pump(const Duration(milliseconds: 100));
-
-    await expectLater(
-      find.byType(MaterialApp),
-      matchesGoldenFile('../screenshot/05_Calibration.png'),
+      '05_Calibration.png',
+      tabIndex: 4,
     );
   });
 }

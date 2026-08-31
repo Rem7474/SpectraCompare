@@ -35,8 +35,8 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Generate screenshots (Golden rendering)
-        run: flutter test test/generate_screenshots_test.dart --update-goldens
+      - name: Generate screenshots (Real fonts rendering)
+        run: flutter test tool/generate_screenshots_test.dart
 
       - name: Diff screenshots
         id: diff
