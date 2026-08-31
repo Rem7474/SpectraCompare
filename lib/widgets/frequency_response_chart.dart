@@ -153,7 +153,9 @@ class _FrequencyResponseChartState extends State<FrequencyResponseChart> {
                               ),
                               const SizedBox(width: 4),
                               ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 130),
+                                constraints: const BoxConstraints(
+                                  maxWidth: 130,
+                                ),
                                 child: Text(
                                   s.label,
                                   style: const TextStyle(fontSize: 11),
