@@ -152,9 +152,14 @@ class _FrequencyResponseChartState extends State<FrequencyResponseChart> {
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              Text(
-                                s.label,
-                                style: const TextStyle(fontSize: 11),
+                              ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 130),
+                                child: Text(
+                                  s.label,
+                                  style: const TextStyle(fontSize: 11),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
                               ),
                             ],
                           ),
@@ -216,6 +221,7 @@ class _FrequencyResponseChartState extends State<FrequencyResponseChart> {
           ),
         Expanded(
           child: LineChart(
+            duration: Duration.zero,
             LineChartData(
               minX: minX,
               maxX: maxX,

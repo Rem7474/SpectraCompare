@@ -10,6 +10,20 @@
 
 SpectraCompare combine dans une seule app un **générateur de signaux de test** et un **analyseur FFT en temps réel**, pour permettre de mesurer, enregistrer et comparer la réponse en fréquence de plusieurs enceintes de façon reproductible. L'app est pensée pour les audiophiles, testeurs d'enceintes et makers (DIY speakers, projets IoT audio) qui veulent une mesure fiable sans dépendre d'un signal externe non maîtrisé.
 
+## 📸 Aperçu de l'application
+
+| Mesure & Signaux | Analyseur FFT & Spectrogramme |
+|:---:|:---:|
+| <img src="screenshot/01_Mesure.png" width="300" alt="Mesure" /> | <img src="screenshot/02_Analyseur.png" width="300" alt="Analyseur" /> |
+
+| Comparaison & Delta dB | Bibliothèque de Mesures |
+|:---:|:---:|
+| <img src="screenshot/03_Comparaison.png" width="300" alt="Comparaison" /> | <img src="screenshot/04_Bibliotheque.png" width="300" alt="Bibliothèque" /> |
+
+| Calibration Micro & Vu-mètre |
+|:---:|
+| <img src="screenshot/05_Calibration.png" width="300" alt="Calibration" /> |
+
 ## 🎛️ Générateur de signaux (priorité #1)
 
 C'est la pierre angulaire de l'app : sans signal de test contrôlé et reproductible, aucune comparaison entre enceintes n'est valide. Ce module est joué en local par le téléphone, et synchronisé avec l'enregistrement.

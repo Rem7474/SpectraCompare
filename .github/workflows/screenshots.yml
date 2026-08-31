@@ -1,0 +1,72 @@
+name: Update Release Screenshots
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  update-screenshots:
+    name: Generate & Update Screenshots
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.8'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate screenshots (Golden rendering)
+        run: flutter test test/generate_screenshots_test.dart --update-goldens
+
+      - name: Diff screenshots
+        id: diff
+        run: |
+          git add screenshot/
+          if git diff --cached --quiet -- screenshot/; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Determine target branch
+        id: target
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --quiet
+          BRANCHES=$(git for-each-ref --points-at="${GITHUB_SHA}" --format='%(refname:short)' refs/remotes/origin | grep -vx 'origin/HEAD' | sed 's#^origin/##')
+          COUNT=$(printf '%s\n' "$BRANCHES" | grep -c .)
+          if [ "$COUNT" -eq 1 ]; then
+            echo "branch=${BRANCHES}" >> "$GITHUB_OUTPUT"
+          else
+            echo "branch=main" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push updated screenshots
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "docs: update screenshots for ${GITHUB_REF_NAME}"
+          git fetch origin "${{ steps.target.outputs.branch }}" --quiet
+          git rebase "origin/${{ steps.target.outputs.branch }}"
+          git push origin "HEAD:refs/heads/${{ steps.target.outputs.branch }}"
