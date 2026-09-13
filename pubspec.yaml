@@ -44,7 +44,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
 
   # Host-runnable (no device) sqlite backend for storage tests
-  sqflite_common_ffi: ^2.3.4+4
+  sqflite_common_ffi: ^2.4.3
 
   # Fakes/mocks for controller and orchestration tests
   mocktail: ^1.0.4
