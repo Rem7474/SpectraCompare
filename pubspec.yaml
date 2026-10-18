@@ -17,7 +17,7 @@ dependencies:
 
   # Audio playback / recording
   just_audio: ^0.10.6
-  record: ^7.0.0
+  record: ^7.1.2
   audio_session: ^0.1.21
 
   # DSP
